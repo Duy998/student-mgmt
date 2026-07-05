@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng điều khiển — Hệ thống Quản lý Học sinh</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">HS</div>
+      <div class="name">Quản lý<br>Học sinh</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="students">
+        <span class="icon">📋</span> Danh sách học sinh
+      </button>
+      <div class="nav-section-label" id="admin-section" style="display:none">Quản trị</div>
+      <button class="nav-item" data-view="users" id="users-nav-item" style="display:none">
+        <span class="icon">👤</span> Quản lý người dùng
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="user-avatar">?</div>
+        <div class="info">
+          <div class="uname" id="user-name">—</div>
+          <div class="urole" id="user-role">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logout-btn">Đăng xuất</button>
+    </div>
+  </aside>
+
+  <div class="mobile-topbar">
+    <button id="sidebar-toggle">☰</button>
+    <strong>Quản lý Học sinh</strong>
+    <span></span>
+  </div>
+
+  <main class="main-content">
+
+    <!-- ── Students View ─────────────────────────────────────── -->
+    <section id="view-students">
+      <div class="page-header">
+        <h1>Danh sách học sinh</h1>
+        <p>Quản lý thông tin và theo dõi kết quả học tập</p>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="card stat-card">
+          <div class="stat-label">Tổng số học sinh</div>
+          <div class="stat-value" id="stat-total">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Đang học</div>
+          <div class="stat-value success" id="stat-active">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Tạm nghỉ</div>
+          <div class="stat-value warning" id="stat-inactive">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Điểm TB chung</div>
+          <div class="stat-value" id="stat-gpa">—</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input type="text" id="search-input" placeholder="Tìm theo tên, mã số, email, lớp...">
+          <select id="status-filter">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang học</option>
+            <option value="inactive">Tạm nghỉ</option>
+            <option value="graduated">Đã tốt nghiệp</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-outline btn-sm" id="download-template-btn">⬇ Mẫu Excel</button>
+          <button class="btn btn-outline btn-sm" id="import-excel-btn">⬆ Import Excel</button>
+          <input type="file" id="import-excel-input" accept=".xlsx,.xls" style="display:none">
+          <button class="btn btn-outline btn-sm" id="export-excel-btn">⬇ Excel</button>
+          <button class="btn btn-outline btn-sm" id="export-pdf-btn">⬇ PDF</button>
+          <button class="btn btn-primary" id="add-student-btn">+ Thêm học sinh</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã số</th>
+                <th>Họ tên</th>
+                <th>Ngày sinh</th>
+                <th>Giới tính</th>
+                <th>Lớp</th>
+                <th>Điểm TB</th>
+                <th>Trạng thái</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr><td colspan="8" class="text-muted" style="text-align:center; padding:30px;">Đang tải...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="pagination-info">—</span>
+          <div class="controls">
+            <button class="btn btn-outline btn-sm" id="prev-page-btn">← Trước</button>
+            <button class="btn btn-outline btn-sm" id="next-page-btn">Sau →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Users View (Admin only) ───────────────────────────── -->
+    <section id="view-users" style="display:none">
+      <div class="page-header">
+        <h1>Quản lý người dùng</h1>
+        <p>Cấp quyền và quản lý tài khoản truy cập hệ thống</p>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Tên đăng nhập</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="6" class="text-muted" style="text-align:center; padding:30px;">Đang tải...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script src="js/config.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/students.js"></script>
+<script src="js/users.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

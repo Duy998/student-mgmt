@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập — Hệ thống Quản lý Học sinh</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="mark">HS</div>
+      <h1>Quản lý Học sinh</h1>
+      <p>Đăng nhập để tiếp tục</p>
+    </div>
+
+    <div id="alert" class="auth-alert"></div>
+
+    <form id="login-form">
+      <div class="field">
+        <label for="username">Tên đăng nhập</label>
+        <input type="text" id="username" name="username" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Mật khẩu</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-btn">Đăng nhập</button>
+    </form>
+
+    <div class="auth-footer">
+      Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+    </div>
+
+    <div class="demo-hint">
+      Tài khoản quản trị mặc định: <span class="mono">admin</span> / <span class="mono">Admin@123</span>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
