@@ -1,31 +1,65 @@
 services:
   db:
     image: postgres:16-alpine
+    container_name: sms_db_dev
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: student_db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-student_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - sms_network_dev
 
   backend:
-    build: ./BE
+    build:
+      context: ./BE
+      dockerfile: Dockerfile.dev
+    container_name: sms_backend_dev
+    restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/student_db
-      SECRET_KEY: ci-only-secret-key-not-for-production
-      ALLOWED_ORIGINS: http://localhost,http://localhost:80
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-student_db}
+      SECRET_KEY: ${SECRET_KEY:-dev-only-secret-key}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:8080,http://127.0.0.1}
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      # Mount code vào container — sửa file .py ở máy host là backend tự reload
+      - ./BE/app:/app/app
+    networks:
+      - sms_network_dev
 
   frontend:
-    build: ./FE
+    build:
+      context: ./FE
+    container_name: sms_frontend_dev
+    restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "80:80"
+    volumes:
+      # Mount toàn bộ FE vào thư mục nginx phục vụ — sửa html/css/js là thấy ngay,
+      # chỉ cần reload lại trình duyệt (F5), không cần rebuild image.
+      - ./FE:/usr/share/nginx/html
+    networks:
+      - sms_network_dev
+
+volumes:
+  pgdata_dev:
+
+networks:
+  sms_network_dev:
+    driver: bridge
