@@ -102,7 +102,6 @@ class Statistics(BaseModel):
     average_gpa: float
 
 
-
 # ── Question ──────────────────────────────────────────────────────────────────
 
 class QuestionOut(BaseModel):

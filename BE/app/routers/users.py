@@ -50,23 +50,8 @@ def update_user(
     return user
 
 
-@router.delete("/by-username/{user_name}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user_by_username(
-    user_name: str,
-    db: Session = Depends(get_db),
-    current_admin: User = Depends(get_admin_user),
-):
-    if user_name == current_admin.username:
-        raise HTTPException(status_code=400, detail="Cannot delete your own account")
-    user = db.query(User).filter(User.username == user_name).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    db.delete(user)
-    db.commit()
-
-
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user_id(
+def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
     current_admin: User = Depends(get_admin_user),

@@ -28,6 +28,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
 class Question(Base):
     __tablename__ = "questions"
 
@@ -57,7 +58,8 @@ class QuizAttempt(Base):
     correct = Column(Integer, nullable=False)     # correct count
     time_spent = Column(Integer, nullable=True)   # seconds
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
+
 class Student(Base):
     __tablename__ = "students"
 

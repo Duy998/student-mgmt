@@ -21,9 +21,18 @@
       <button class="nav-item active" data-view="students">
         <span class="icon">📋</span> Danh sách học sinh
       </button>
+      <button class="nav-item" data-view="quiz" id="quiz-nav-item">
+        <span class="icon">📝</span> Làm bài trắc nghiệm
+      </button>
       <div class="nav-section-label" id="admin-section" style="display:none">Quản trị</div>
       <button class="nav-item" data-view="users" id="users-nav-item" style="display:none">
         <span class="icon">👤</span> Quản lý người dùng
+      </button>
+      <button class="nav-item" data-view="questions" id="questions-nav-item" style="display:none">
+        <span class="icon">❓</span> Ngân hàng câu hỏi
+      </button>
+      <button class="nav-item" data-view="results" id="results-nav-item" style="display:none">
+        <span class="icon">📊</span> Kết quả bài thi
       </button>
     </nav>
 
@@ -151,6 +160,126 @@
       </div>
     </section>
 
+
+    <!-- ── Quiz View (Student) ──────────────────────────────── -->
+    <section id="view-quiz" style="display:none">
+      <div class="page-header">
+        <h1>Bài tập trắc nghiệm</h1>
+        <p>Chọn bộ lọc rồi bắt đầu làm bài</p>
+      </div>
+      <div id="quiz-setup-panel" class="card" style="max-width:480px; margin:0 auto;">
+        <div style="display:flex; flex-direction:column; gap:16px; padding:8px 0;">
+          <div class="field">
+            <label>Khối lớp (để trống = tất cả)</label>
+            <select id="quiz-grade-select">
+              <option value="">Tất cả khối</option>
+              <option value="6">Khối 6</option>
+              <option value="7">Khối 7</option>
+              <option value="8">Khối 8</option>
+              <option value="9">Khối 9</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Số câu hỏi</label>
+            <input type="number" id="quiz-count-input" value="10" min="1" max="50">
+          </div>
+          <div class="field">
+            <label>Thời gian làm bài (phút)</label>
+            <input type="number" id="quiz-time-input" value="15" min="1" max="120">
+          </div>
+          <button class="btn btn-primary" id="start-quiz-btn">Bắt đầu làm bài</button>
+        </div>
+      </div>
+
+      <div id="quiz-in-progress" style="display:none;">
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 20px;">
+          <span id="quiz-progress-label">Câu 1 / 10</span>
+          <span id="quiz-timer" style="font-size:1.3rem; font-weight:700; color:var(--danger,#e53e3e);">15:00</span>
+          <button class="btn btn-danger btn-sm" id="submit-quiz-btn">Nộp bài</button>
+        </div>
+        <div id="quiz-questions-list"></div>
+      </div>
+
+      <div id="quiz-result-panel" style="display:none;">
+        <div class="card" style="max-width:400px; margin:40px auto; text-align:center; padding:40px 20px;">
+          <div style="font-size:3rem; margin-bottom:12px;">🎉</div>
+          <h2 style="margin-bottom:8px;">Kết quả của bạn</h2>
+          <div id="quiz-result-score" style="font-size:2.5rem; font-weight:800; margin:12px 0;"></div>
+          <div id="quiz-result-detail" style="color:var(--text-muted,#666); margin-bottom:24px;"></div>
+          <button class="btn btn-primary" id="retry-quiz-btn">Làm bài khác</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Questions View (Admin) ────────────────────────────── -->
+    <section id="view-questions" style="display:none">
+      <div class="page-header">
+        <h1>Ngân hàng câu hỏi</h1>
+        <p>Quản lý câu hỏi trắc nghiệm</p>
+      </div>
+      <div class="toolbar" style="margin-bottom:16px;">
+        <div class="toolbar-left">
+          <input type="text" id="q-search-input" placeholder="Tìm theo mã, nội dung...">
+          <select id="q-grade-filter">
+            <option value="">Tất cả khối</option>
+            <option value="6">Khối 6</option><option value="7">Khối 7</option>
+            <option value="8">Khối 8</option><option value="9">Khối 9</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-outline btn-sm" id="download-q-template-btn">⬇ Mẫu câu hỏi</button>
+          <button class="btn btn-outline btn-sm" id="import-q-btn">⬆ Import câu hỏi</button>
+          <input type="file" id="import-q-input" accept=".xlsx,.xls" style="display:none">
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th>Mã</th><th>Khối</th><th>Chủ đề</th><th>Mức độ</th>
+              <th style="min-width:280px;">Câu hỏi</th><th>Đáp án</th><th></th>
+            </tr></thead>
+            <tbody id="questions-tbody">
+              <tr><td colspan="7" class="text-muted" style="text-align:center;padding:30px;">Đang tải...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="q-pagination-info">—</span>
+          <div class="controls">
+            <button class="btn btn-outline btn-sm" id="q-prev-btn">← Trước</button>
+            <button class="btn btn-outline btn-sm" id="q-next-btn">Sau →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Results View (Admin) ──────────────────────────────── -->
+    <section id="view-results" style="display:none">
+      <div class="page-header">
+        <h1>Kết quả bài thi</h1>
+        <p>Xem điểm số của tất cả học sinh</p>
+      </div>
+      <div class="toolbar" style="margin-bottom:16px;">
+        <div class="toolbar-left">
+          <input type="text" id="result-search-input" placeholder="Tìm theo tên đăng nhập...">
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th>Tên đăng nhập</th><th>Điểm</th><th>Đúng</th><th>Tổng câu</th>
+              <th>Thời gian làm</th><th>Nộp lúc</th>
+            </tr></thead>
+            <tbody id="results-tbody">
+              <tr><td colspan="6" class="text-muted" style="text-align:center;padding:30px;">Đang tải...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -161,6 +290,7 @@
 <script src="js/toast.js"></script>
 <script src="js/students.js"></script>
 <script src="js/users.js"></script>
+<script src="js/quiz.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

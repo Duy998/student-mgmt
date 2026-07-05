@@ -29,6 +29,7 @@ app.include_router(students.router, prefix=settings.API_PREFIX)
 app.include_router(users.router, prefix=settings.API_PREFIX)
 app.include_router(quiz.router, prefix=settings.API_PREFIX)
 
+
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)

@@ -91,6 +91,28 @@ const api = {
     return apiRequest('/students/import/excel', { method: 'POST', body: form, isForm: true });
   },
 
+  // Quiz
+  drawQuestions: (params) => {
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v])=>v!=null&&v!=='')));
+    return apiRequest(`/quiz/draw?${qs}`);
+  },
+  submitQuiz: (payload) => apiRequest('/quiz/submit', { method: 'POST', body: payload }),
+  downloadQuestionTemplate: () => apiRequest('/quiz/questions/template', { isBlob: true }),
+  importQuestions: (file, overwrite=false) => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiRequest(`/quiz/questions/import?overwrite=${overwrite}`, { method: 'POST', body: form, isForm: true });
+  },
+  getQuestions: (params) => {
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v])=>v!=null&&v!=='')));
+    return apiRequest(`/quiz/questions?${qs}`);
+  },
+  deleteQuestion: (id) => apiRequest(`/quiz/questions/${id}`, { method: 'DELETE' }),
+  getResults: (params) => {
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v])=>v!=null&&v!=='')));
+    return apiRequest(`/quiz/results?${qs}`);
+  },
+
   // Users (admin)
   getUsers: () => apiRequest('/users/'),
   updateUser: (id, data) => apiRequest(`/users/${id}`, { method: 'PUT', body: data }),

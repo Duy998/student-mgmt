@@ -99,12 +99,10 @@ Toàn bộ API có Swagger UI tại `/api/docs`.
 **Backend:**
 ```bash
 cd BE
-python -m venv venv 
-
-./venv/Scripts/Activate.ps1
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 # Cần PostgreSQL chạy sẵn, hoặc sửa DATABASE_URL trong .env sang sqlite tạm để test
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
 **Frontend:** mở `FE/index.html` trực tiếp bằng Live Server hoặc:
