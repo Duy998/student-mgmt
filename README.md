@@ -99,7 +99,8 @@ Toàn bộ API có Swagger UI tại `/api/docs`.
 **Backend:**
 ```bash
 cd BE
-python -m venv venv && source venv/bin/activate
+python -m venv venv
+venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 # Cần PostgreSQL chạy sẵn, hoặc sửa DATABASE_URL trong .env sang sqlite tạm để test
 uvicorn app.main:app --reload

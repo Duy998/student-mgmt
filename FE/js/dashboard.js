@@ -12,6 +12,8 @@ function initShell() {
   if (currentUser.is_admin) {
     document.getElementById('admin-section').style.display = 'block';
     document.getElementById('users-nav-item').style.display = 'flex';
+    document.getElementById('questions-nav-item').style.display = 'flex';  // FIX: thêm dòng này
+    document.getElementById('results-nav-item').style.display = 'flex';    // FIX: thêm dòng này
   }
 
   document.getElementById('logout-btn').addEventListener('click', () => {
@@ -33,13 +35,20 @@ function initShell() {
 
 function switchView(view) {
   document.querySelectorAll('.nav-item[data-view]').forEach(i => i.classList.toggle('active', i.dataset.view === view));
-  document.getElementById('view-students').style.display = view === 'students' ? 'block' : 'none';
-  document.getElementById('view-users').style.display = view === 'users' ? 'block' : 'none';
+
+  // FIX: thêm đủ 5 view thay vì chỉ 2
+  document.getElementById('view-students').style.display  = view === 'students'  ? 'block' : 'none';
+  document.getElementById('view-users').style.display     = view === 'users'     ? 'block' : 'none';
+  document.getElementById('view-quiz').style.display      = view === 'quiz'      ? 'block' : 'none';
+  document.getElementById('view-questions').style.display = view === 'questions' ? 'block' : 'none';
+  document.getElementById('view-results').style.display   = view === 'results'   ? 'block' : 'none';
+
   document.getElementById('sidebar')?.classList.remove('open');
 
-  if (view === 'users' && currentUser.is_admin) {
-    loadUsers();
-  }
+  // FIX: thêm load data cho 3 view mới
+  if (view === 'users' && currentUser.is_admin)     { loadUsers(); }
+  if (view === 'questions' && currentUser.is_admin) { loadQuestions(); }
+  if (view === 'results' && currentUser.is_admin)   { loadResults(); }
 }
 
 initShell();
