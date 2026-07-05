@@ -6,64 +6,51 @@ on:
       - master
       - main
       - develop
-
   pull_request:
     branches:
       - master
       - main
 
 jobs:
-  backend:
-
+  build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: BE
-
     steps:
-
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install dependencies
+      - name: Build and start services
+        run: docker compose -f docker-compose.ci.yml up -d --build
+
+      - name: Wait for backend health
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/api/health > /dev/null 2>&1; then
+              echo "Backend ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Backend did not become healthy in time"
+          docker compose -f docker-compose.ci.yml logs backend
+          exit 1
 
-  frontend:
-
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: FE
-
-    steps:
-
-      - uses: actions/checkout@v4
-
-      - name: Build Docker Image
+      - name: Wait for frontend health
         run: |
-          docker build -t student-frontend .
+          for i in {1..30}; do
+            if curl -f http://localhost > /dev/null 2>&1; then
+              echo "Frontend ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Frontend did not become healthy in time"
+          docker compose -f docker-compose.ci.yml logs frontend
+          exit 1
 
-  backend-docker:
-
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: BE
-
-    steps:
-
-      - uses: actions/checkout@v4
-
-      - name: Build Docker Image
-        run: |
-          docker build -t student-backend .
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.ci.yml down -v

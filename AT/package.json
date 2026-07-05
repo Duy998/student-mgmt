@@ -1,0 +1,32 @@
+{
+  "name": "at-student-mgmt",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript automation test suite for Student Management application",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:register": "playwright test tests/auth/register.spec.ts",
+    "test:student": "playwright test tests/student/create_student.spec.ts",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen"
+  },
+  "keywords": [
+    "playwright",
+    "automation",
+    "e2e"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.0"
+  }
+}
