@@ -30,25 +30,89 @@ student-mgmt/
 ## Chạy bằng Docker (khuyến nghị)
 
 1. Copy file môi trường:
+
    ```bash
    cp .env.example .env
    ```
-2. Mở `.env`, đổi `SECRET_KEY` thành giá trị ngẫu nhiên mạnh:
-   ```bash
-   openssl rand -hex 32
-   ```
-3. Build và chạy toàn bộ hệ thống:
-   ```bash
-   docker compose up --build
-   ```
-4. Truy cập:
-   - Frontend: http://localhost
-   - API docs (Swagger): http://localhost:8000/api/docs
 
-5. Đăng nhập với tài khoản admin được tạo sẵn lần đầu chạy:
+   > **Windows (PowerShell):**
+   >
+   > ```powershell
+   > copy .env.example .env
+   > ```
+
+2. Mở file `.env` và cập nhật các thông tin cần thiết:
+
+   - Tạo `SECRET_KEY` ngẫu nhiên:
+     ```bash
+     openssl rand -hex 32
+     ```
+   - Nếu PostgreSQL đang chạy trên máy host (không chạy bằng Docker), cập nhật:
+     ```env
+     DATABASE_URL=postgresql://postgres:123456@host.docker.internal:5432/student_db
+     ```
+
+3. Build Docker Image cho Backend:
+
+   ```bash
+   cd BE
+   docker build -t student-be .
+   ```
+
+4. Chạy Backend Container:
+
+   ```bash
+   docker run -d --name student-be -p 8000:8000 -e DATABASE_URL="postgresql://postgres:123456@host.docker.internal:5432/student_db" student-be
+
+   ```
+
+5. Build Docker Image cho Frontend:
+
+   ```bash
+   cd ../FE
+   docker build -t student-fe .
+   ```
+
+6. Chạy Frontend Container:
+
+   ```bash
+   docker run -d --name student-fe -p 8080:8080 student-fe
+   ```
+
+7. Truy cập hệ thống:
+
+   - Frontend: http://localhost:8080
+   - API Docs (Swagger): http://localhost:8000/api/docs
+
+8. Đăng nhập với tài khoản admin được tạo sẵn:
+
    - Username: `admin`
    - Password: `Admin@123`
-   - **Đổi mật khẩu này ngay sau khi đăng nhập lần đầu** (mục đổi mật khẩu qua API `/api/auth/change-password`, hoặc tạo trang riêng nếu cần).
+
+   > **Khuyến nghị:** Đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
+
+9. Một số lệnh Docker hữu ích:
+
+   ```bash
+   # Xem container đang chạy
+   docker ps
+
+   # Xem log Backend
+   docker logs student-be
+
+   # Xem log Frontend
+   docker logs student-fe
+
+   # Truy cập vào container
+   docker exec -it student-be sh
+   docker exec -it student-fe sh
+
+   # Dừng container
+   docker stop student-be student-fe
+
+   # Khởi động lại container
+   docker start student-be student-fe
+   ```
 
 ## Deploy lên Railway (online, miễn phí)
 

@@ -22,7 +22,7 @@ class Settings:
     # CORS
     ALLOWED_ORIGINS: list = os.getenv(
         "ALLOWED_ORIGINS",
-        "http://localhost,http://localhost:80,http://127.0.0.1"
+        "http://localhost,http://localhost:80,http://127.0.0.1,http://127.0.0.1:8080,http://localhost:8080"
     ).split(",")
 
 settings = Settings()

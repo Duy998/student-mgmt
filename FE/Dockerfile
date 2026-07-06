@@ -1,11 +1,9 @@
-FROM nginx:1.27-alpine
+FROM python:3.13-slim
 
-COPY . /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /FE
 
-EXPOSE 80
+COPY . .
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://localhost/ || exit 1
+EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["python", "-m", "http.server", "8080"]
