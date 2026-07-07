@@ -1,6 +1,6 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000/api'
-  : 'https://<your-backend-service>.up.railway.app/api';
+  : '/api';
 
 const TOKEN_KEY = 'sms_access_token';
 const USER_KEY = 'sms_current_user';

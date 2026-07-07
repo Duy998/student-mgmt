@@ -4,10 +4,15 @@ let currentSearch = '';
 let currentStatusFilter = '';
 let editingStudentId = null;
 
-const statusLabels = {
-  active: { text: 'Đang học', cls: 'badge-active' },
-  inactive: { text: 'Tạm nghỉ', cls: 'badge-inactive' },
-  graduated: { text: 'Đã tốt nghiệp', cls: 'badge-graduated' },
+// THAY ĐỔI: Bỏ object statusLabels hardcode tiếng Việt.
+// Trước: statusLabels = { active: { text: 'Đang học', cls: '...' } }
+// Sau  : dùng translateValue('status', value) từ i18n.js
+// Lý do: khi đổi ngôn ngữ, object cũ vẫn giữ text cũ → không dịch được.
+//        translateValue() đọc DICT theo currentLang tại thời điểm gọi → luôn đúng.
+const statusCls = {
+  active    : 'badge-active',
+  inactive  : 'badge-inactive',
+  graduated : 'badge-graduated',
 };
 
 function escapeHtml(str) {
@@ -46,7 +51,7 @@ async function loadStudents() {
     }
 
     document.getElementById('pagination-info').textContent =
-      `Hiển thị ${students.length} kết quả — Trang ${currentPage + 1}`;
+      `${t('page.info')} ${currentPage + 1} — ${students.length} ${t('page.results')}`;
     document.getElementById('prev-page-btn').disabled = currentPage === 0;
     document.getElementById('next-page-btn').disabled = students.length < PAGE_SIZE;
 
@@ -56,20 +61,28 @@ async function loadStudents() {
 }
 
 function renderStudentRow(s) {
-  const status = statusLabels[s.status] || { text: s.status, cls: '' };
+  // THAY ĐỔI: dùng translateValue() thay vì đọc từ statusLabels cũ
+  // translateValue('status', 'active') → 'Đang học' (VI) hoặc 'Active' (EN)
+  // translateValue('gender', 'Nam')   → 'Nam' (VI) hoặc 'Male' (EN)
+  const statusText = translateValue('status', s.status);
+  const statusClass = statusCls[s.status] || '';
+  const genderText = translateValue('gender', s.gender);
+
   return `
     <tr data-id="${s.id}">
       <td class="mono">${escapeHtml(s.student_code)}</td>
       <td>${escapeHtml(s.full_name)}</td>
       <td>${formatDate(s.date_of_birth)}</td>
-      <td>${escapeHtml(s.gender)}</td>
+      <td>${escapeHtml(genderText)}</td>
       <td>${escapeHtml(s.class_name || '—')}</td>
       <td class="mono">${(s.gpa ?? 0).toFixed(1)}</td>
-      <td><span class="badge ${status.cls}">${status.text}</span></td>
+      <td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td>
       <td>
         <div class="flex gap-8">
-          <button class="btn btn-outline btn-sm edit-btn">Sửa</button>
-          ${currentUser.is_admin ? '<button class="btn btn-danger btn-sm delete-btn">Xóa</button>' : ''}
+          <button class="btn btn-outline btn-sm edit-btn">${t('btn.edit')}</button>
+          ${currentUser.is_admin
+            ? `<button class="btn btn-danger btn-sm delete-btn">${t('btn.delete')}</button>`
+            : ''}
         </div>
       </td>
     </tr>`;
@@ -147,57 +160,60 @@ async function openStudentModal(studentId) {
     }
   }
 
+  // THAY ĐỔI: dùng t() cho label và title trong modal
+  // Lý do: modal được tạo động bằng innerHTML nên data-i18n không có tác dụng.
+  // Phải gọi t() trực tiếp khi build chuỗi HTML.
   const modalRoot = document.getElementById('modal-root');
   modalRoot.innerHTML = `
     <div class="modal-overlay" id="student-modal-overlay">
       <div class="modal-box">
         <div class="modal-header">
-          <h3>${studentId ? 'Sửa thông tin học sinh' : 'Thêm học sinh mới'}</h3>
+          <h3>${studentId ? t('btn.edit') + ' ' + t('th.name').toLowerCase() : t('students.add')}</h3>
           <button class="modal-close" id="close-student-modal">&times;</button>
         </div>
         <form id="student-form">
           <div class="modal-body">
             <div class="field-row">
               <div class="field">
-                <label>Mã số học sinh</label>
+                <label>${t('th.code')}</label>
                 <input type="text" id="f-student_code" value="${escapeHtml(student.student_code)}" required>
               </div>
               <div class="field">
-                <label>Họ và tên</label>
+                <label>${t('th.name')}</label>
                 <input type="text" id="f-full_name" value="${escapeHtml(student.full_name)}" required>
               </div>
             </div>
             <div class="field-row">
               <div class="field">
-                <label>Ngày sinh</label>
+                <label>${t('th.dob')}</label>
                 <input type="date" id="f-date_of_birth" value="${student.date_of_birth || ''}" required>
               </div>
               <div class="field">
-                <label>Giới tính</label>
+                <label>${t('th.gender')}</label>
                 <select id="f-gender">
-                  <option value="Nam" ${student.gender === 'Nam' ? 'selected' : ''}>Nam</option>
-                  <option value="Nữ" ${student.gender === 'Nữ' ? 'selected' : ''}>Nữ</option>
-                  <option value="Khác" ${student.gender === 'Khác' ? 'selected' : ''}>Khác</option>
+                  <option value="Nam"  ${student.gender === 'Nam'  ? 'selected' : ''}>${t('gender.Nam')}</option>
+                  <option value="Nữ"   ${student.gender === 'Nữ'   ? 'selected' : ''}>${t('gender.Nữ')}</option>
+                  <option value="Khác" ${student.gender === 'Khác' ? 'selected' : ''}>${t('gender.Khác')}</option>
                 </select>
               </div>
             </div>
             <div class="field-row">
               <div class="field">
-                <label>Email</label>
+                <label>${t('th.email')}</label>
                 <input type="email" id="f-email" value="${escapeHtml(student.email)}" required>
               </div>
               <div class="field">
-                <label>Số điện thoại</label>
+                <label>Điện thoại</label>
                 <input type="text" id="f-phone" value="${escapeHtml(student.phone || '')}">
               </div>
             </div>
             <div class="field-row">
               <div class="field">
-                <label>Lớp</label>
+                <label>${t('th.class')}</label>
                 <input type="text" id="f-class_name" value="${escapeHtml(student.class_name || '')}">
               </div>
               <div class="field">
-                <label>Điểm trung bình</label>
+                <label>${t('th.gpa')}</label>
                 <input type="number" id="f-gpa" min="0" max="10" step="0.1" value="${student.gpa ?? 0}">
               </div>
             </div>
@@ -206,17 +222,17 @@ async function openStudentModal(studentId) {
               <input type="text" id="f-address" value="${escapeHtml(student.address || '')}">
             </div>
             <div class="field">
-              <label>Trạng thái</label>
+              <label>${t('th.status')}</label>
               <select id="f-status">
-                <option value="active" ${student.status === 'active' ? 'selected' : ''}>Đang học</option>
-                <option value="inactive" ${student.status === 'inactive' ? 'selected' : ''}>Tạm nghỉ</option>
-                <option value="graduated" ${student.status === 'graduated' ? 'selected' : ''}>Đã tốt nghiệp</option>
+                <option value="active"    ${student.status === 'active'    ? 'selected' : ''}>${t('status.active')}</option>
+                <option value="inactive"  ${student.status === 'inactive'  ? 'selected' : ''}>${t('status.inactive')}</option>
+                <option value="graduated" ${student.status === 'graduated' ? 'selected' : ''}>${t('status.graduated')}</option>
               </select>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" id="cancel-student-btn">Hủy</button>
-            <button type="submit" class="btn btn-primary" id="save-student-btn">Lưu</button>
+            <button type="button" class="btn btn-outline" id="cancel-student-btn">${t('btn.cancel')}</button>
+            <button type="submit" class="btn btn-primary" id="save-student-btn">${t('btn.save')}</button>
           </div>
         </form>
       </div>
@@ -239,28 +255,28 @@ async function submitStudentForm(e) {
   e.preventDefault();
   const btn = document.getElementById('save-student-btn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Đang lưu...';
+  btn.innerHTML = '<span class="spinner"></span> ...';
 
   const payload = {
-    student_code: document.getElementById('f-student_code').value.trim(),
-    full_name: document.getElementById('f-full_name').value.trim(),
+    student_code : document.getElementById('f-student_code').value.trim(),
+    full_name    : document.getElementById('f-full_name').value.trim(),
     date_of_birth: document.getElementById('f-date_of_birth').value,
-    gender: document.getElementById('f-gender').value,
-    email: document.getElementById('f-email').value.trim(),
-    phone: document.getElementById('f-phone').value.trim() || null,
-    address: document.getElementById('f-address').value.trim() || null,
-    class_name: document.getElementById('f-class_name').value.trim() || null,
-    gpa: parseFloat(document.getElementById('f-gpa').value) || 0,
-    status: document.getElementById('f-status').value,
+    gender       : document.getElementById('f-gender').value,
+    email        : document.getElementById('f-email').value.trim(),
+    phone        : document.getElementById('f-phone').value.trim() || null,
+    address      : document.getElementById('f-address').value.trim() || null,
+    class_name   : document.getElementById('f-class_name').value.trim() || null,
+    gpa          : parseFloat(document.getElementById('f-gpa').value) || 0,
+    status       : document.getElementById('f-status').value,
   };
 
   try {
     if (editingStudentId) {
       await api.updateStudent(editingStudentId, payload);
-      showToast('Cập nhật học sinh thành công', 'success');
+      showToast(t('toast.saveOk'), 'success');   // THAY ĐỔI: dùng t() thay vì hardcode
     } else {
       await api.createStudent(payload);
-      showToast('Thêm học sinh thành công', 'success');
+      showToast(t('toast.saveOk'), 'success');   // THAY ĐỔI: dùng t() thay vì hardcode
     }
     closeStudentModal();
     loadStudents();
@@ -268,7 +284,7 @@ async function submitStudentForm(e) {
   } catch (err) {
     showToast(err.message, 'error');
     btn.disabled = false;
-    btn.textContent = 'Lưu';
+    btn.textContent = t('btn.save');
   }
 }
 
@@ -280,15 +296,15 @@ function confirmDeleteStudent(id) {
     <div class="modal-overlay" id="delete-modal-overlay">
       <div class="modal-box" style="max-width: 400px;">
         <div class="modal-header">
-          <h3>Xác nhận xóa</h3>
+          <h3>${t('btn.confirm')}</h3>
           <button class="modal-close" id="close-delete-modal">&times;</button>
         </div>
         <div class="modal-body">
           Bạn có chắc muốn xóa học sinh này? Hành động này không thể hoàn tác.
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline" id="cancel-delete-btn">Hủy</button>
-          <button class="btn btn-danger" id="confirm-delete-btn">Xóa</button>
+          <button class="btn btn-outline" id="cancel-delete-btn">${t('btn.cancel')}</button>
+          <button class="btn btn-danger"  id="confirm-delete-btn">${t('btn.delete')}</button>
         </div>
       </div>
     </div>`;
@@ -299,7 +315,7 @@ function confirmDeleteStudent(id) {
   document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
     try {
       await api.deleteStudent(id);
-      showToast('Đã xóa học sinh', 'success');
+      showToast(t('toast.deleteOk'), 'success');   // THAY ĐỔI: dùng t()
       close();
       loadStudents();
       loadStatistics();
@@ -317,9 +333,9 @@ document.getElementById('export-excel-btn').addEventListener('click', async (e) 
   try {
     const blob = await api.exportExcel();
     downloadBlob(blob, `danh-sach-hoc-sinh-${new Date().toISOString().slice(0,10)}.xlsx`);
-    showToast('Đã xuất file Excel', 'success');
+    showToast(t('toast.saveOk'), 'success');
   } catch (err) {
-    showToast('Xuất Excel thất bại: ' + err.message, 'error');
+    showToast(`${t('toast.exportFail')}: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
@@ -331,15 +347,15 @@ document.getElementById('export-pdf-btn').addEventListener('click', async (e) =>
   try {
     const blob = await api.exportPdf();
     downloadBlob(blob, `danh-sach-hoc-sinh-${new Date().toISOString().slice(0,10)}.pdf`);
-    showToast('Đã xuất file PDF', 'success');
+    showToast(t('toast.saveOk'), 'success');
   } catch (err) {
-    showToast('Xuất PDF thất bại: ' + err.message, 'error');
+    showToast(`${t('toast.exportFail')}: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
 });
 
-// ── Import from Excel ────────────────────────────────────────
+// ── Import from Excel ─────────────────────────────────────────
 
 document.getElementById('download-template-btn').addEventListener('click', async (e) => {
   const btn = e.currentTarget;
@@ -347,9 +363,9 @@ document.getElementById('download-template-btn').addEventListener('click', async
   try {
     const blob = await api.downloadImportTemplate();
     downloadBlob(blob, 'mau-import-hoc-sinh.xlsx');
-    showToast('Đã tải file mẫu', 'success');
+    showToast(t('toast.saveOk'), 'success');
   } catch (err) {
-    showToast('Tải file mẫu thất bại: ' + err.message, 'error');
+    showToast(err.message, 'error');
   } finally {
     btn.disabled = false;
   }
@@ -362,16 +378,16 @@ document.getElementById('import-excel-btn').addEventListener('click', () => {
 document.getElementById('import-excel-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  e.target.value = ''; // allow re-selecting the same file later
+  e.target.value = '';
 
   const btn = document.getElementById('import-excel-btn');
   const originalText = btn.textContent;
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Đang import...';
+  btn.innerHTML = '<span class="spinner"></span> ...';
 
   try {
     const imported = await api.importExcel(file);
-    showToast(`Import thành công ${imported.length} học sinh`, 'success');
+    showToast(`${t('toast.importOk')}: ${imported.length}`, 'success');
     loadStudents();
     loadStatistics();
   } catch (err) {
@@ -383,8 +399,6 @@ document.getElementById('import-excel-input').addEventListener('change', async (
 });
 
 function showImportErrors(err) {
-  // err.detail is the structured FastAPI detail object { message, errors: [] }
-  // for 422 import failures, set by apiRequest in config.js.
   let message = err.message;
   let errorList = [];
   if (err.detail && typeof err.detail === 'object') {
@@ -397,20 +411,20 @@ function showImportErrors(err) {
     <div class="modal-overlay" id="import-error-overlay">
       <div class="modal-box" style="max-width: 560px;">
         <div class="modal-header">
-          <h3>Import thất bại</h3>
+          <h3>${t('toast.importFail')}</h3>
           <button class="modal-close" id="close-import-error">&times;</button>
         </div>
         <div class="modal-body">
           <p style="margin-bottom:12px;">${escapeHtml(message)}</p>
           ${errorList.length ? `
-            <div style="max-height:260px; overflow-y:auto; border:1px solid var(--border, #e2e2e2); border-radius:6px; padding:10px;">
+            <div style="max-height:260px; overflow-y:auto; border:1px solid var(--border,#e2e2e2); border-radius:6px; padding:10px;">
               <ul style="margin:0; padding-left:18px;">
                 ${errorList.map(e => `<li style="margin-bottom:4px;">${escapeHtml(e)}</li>`).join('')}
               </ul>
             </div>` : ''}
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" id="close-import-error-2">Đã hiểu</button>
+          <button class="btn btn-primary" id="close-import-error-2">${t('btn.close')}</button>
         </div>
       </div>
     </div>`;

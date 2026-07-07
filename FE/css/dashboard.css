@@ -236,3 +236,41 @@
 }
 
 .table-scroll { overflow-x: auto; }
+
+/* ── Language toggle button ─────────────────────────────────────────────── */
+/* Desktop: nằm cố định góc trên bên phải, trên mọi content                */
+.lang-toggle-btn {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 200;
+  background: transparent;
+  border: 2px solid var(--color-navy, #1E3A5F);
+  color: var(--color-navy, #1E3A5F);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.lang-toggle-btn:hover {
+  background: var(--color-navy, #1E3A5F);
+  color: #fff;
+}
+
+/* Mobile: override fixed positioning, inherit topbar style */
+@media (max-width: 860px) {
+  .lang-toggle-btn {
+    position: static;
+    border-color: white;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+  .lang-toggle-btn:hover {
+    background: rgba(255,255,255,0.2);
+    color: white;
+  }
+}
