@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -18,22 +18,14 @@ export default defineConfig({
   ],
 
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: process.env.BASE_URL ?? 'http://localhost:5500/',
     trace: 'on-first-retry',
-    video: 'on',
-    baseURL: 'http://localhost:8000',
-    // launchOptions:
-    //   args: ['--start-maximized'],
-    // },
-    // viewport: null,
+    // Chỉ giữ video/screenshot khi fail để tránh phình dung lượng artifact trên CI.
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
   },
 
-  /* Configure projects for major browsers */
   projects: [
-
     {
       name: 'chromium',
       use: {
@@ -43,35 +35,15 @@ export default defineConfig({
         },
       },
     },
+    // TODO: mở rộng sang firefox/webkit khi cần test cross-browser thật sự,
+    // hiện tại app chỉ được yêu cầu support Chrome nên chỉ chạy 1 project.
+  ],
 
-  ],  
-  // use: {
-  //   baseURL: process.env.BASE_URL ?? 'http://localhost:5500/',
-  //   trace: 'on-first-retry',
-  //   // Chỉ giữ video khi test fail để tránh phình dung lượng artifact trên CI
-  //   video: 'retain-on-failure',
-  //   screenshot: 'only-on-failure',
-  // },
-
-  // projects: [
-  //   {
-  //     name: 'chromium',
-  //     use: { ...devices['Desktop Chrome'] },
-  //   },
-  //   {
-  //     name: 'firefox',
-  //     use: { ...devices['Desktop Firefox'] },
-  //   },
-  //   {
-  //     name: 'webkit',
-  //     use: { ...devices['Desktop Safari'] },
-  //   },
-  // ],
-
-  // Tự động khởi động app trước khi chạy test (bỏ comment và chỉnh command theo app thật)
+  // Bỏ comment khi có script khởi động app + health-check, để CI tự start app
+  // trước khi chạy test thay vì yêu cầu app đã chạy sẵn thủ công.
   // webServer: {
   //   command: 'npm run start --prefix ../student-mgmt-app',
-  //   url: process.env.BASE_URL ?? 'http://localhost:3000/',
+  //   url: process.env.BASE_URL ?? 'http://localhost:5500/',
   //   reuseExistingServer: !process.env.CI,
   //   timeout: 120 * 1000,
   // },

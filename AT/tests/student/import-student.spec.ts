@@ -1,46 +1,49 @@
 import { test, expect } from '@playwright/test';
-import { ENV } from '../utils/env';
-import { MESSAGE } from '../utils/constants';
-import { buildRegisterData } from '../utils/test-data';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { StudentPage } from '../pages/StudentPage';
+import path from 'path';
+import { ENV } from '../../constants/env';
+import { API } from '../../constants/url';
+import { buildRegisterData } from '../../test-data/register.data';
+import { LoginPage } from '../../pages/LoginPage';
+import { StudentPage } from '../../pages/StudentPage';
+import { readExcelAsRows } from '../../utils/excel';
 
-// Hai test bên dưới phụ thuộc thứ tự (đăng ký trước, login sau dùng chung user)
-// nên chạy serial để tránh race condition khi fullyParallel đang bật ở config.
-test.describe.serial('Authentication', () => {
-  const registerData = buildRegisterData();
+// File mẫu: test-data/excel/student-import.xlsx — chứa sẵn danh sách học sinh
+// dùng để test tính năng "Nhập Excel" trên UI.
+const IMPORT_FILE = path.resolve(__dirname, '../../test-data/excel/student-import.xlsx');
+
+test.describe('Import Student from Excel', () => {
+  const user = buildRegisterData();
+
+  test.beforeAll(async ({ request }) => {
+    const response = await request.post(API.auth.register, { data: user });
+    if (!response.ok()) {
+      throw new Error(`Setup failed: cannot register test user. Status: ${response.status()}`);
+    }
+  });
 
   test.afterAll(async ({ request }) => {
-    // Dọn dữ liệu user vừa tạo để không ảnh hưởng các lần chạy tiếp theo.
-    const response = await request.delete('/api/admin/delete-user', {
-      params: {
-        username: registerData.username,
-        secret: ENV.adminApiSecret,
-      },
+    await request.delete(API.admin.deleteUser, {
+      params: { username: user.username, secret: ENV.adminApiSecret },
     });
-    expect(response.ok()).toBeTruthy();
   });
 
-  test('AUTH-01: Đăng ký tài khoản mới thành công', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
-    const registerPage = new RegisterPage(page);
-
     await loginPage.open(ENV.baseURL);
-    await registerPage.openFromLogin();
-    await registerPage.register(registerData);
-
-    await registerPage.expectToastVisible(MESSAGE.AUTH.registerSuccess);
-    await expect(page.getByText('Student Management')).toBeVisible();
+    await loginPage.login(user.username, user.password);
   });
 
-  test('AUTH-02: Đăng nhập bằng tài khoản vừa đăng ký thành công', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test('IMP-01: Nhập danh sách học sinh từ file Excel thành công', async ({ page }) => {
     const studentPage = new StudentPage(page);
+    const rows = readExcelAsRows<{ studentId: string; fullName: string }>(IMPORT_FILE);
+    expect(rows.length).toBeGreaterThan(0);
 
-    await loginPage.open(ENV.baseURL);
-    await loginPage.login(registerData.username, registerData.password);
+    await studentPage.expectLoaded(user.fullname);
+    await studentPage.importFromExcel(IMPORT_FILE);
 
-    await studentPage.expectLoaded(registerData.fullname);
+    // Verify từng học sinh trong file mẫu đều xuất hiện trên bảng danh sách.
+    for (const row of rows) {
+      await studentPage.expectStudentInList(row.studentId, row.fullName);
+    }
   });
 });

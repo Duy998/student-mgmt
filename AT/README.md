@@ -6,7 +6,7 @@ Playwright + TypeScript test suite cho ứng dụng Student Management.
 
 ```bash
 npm install
-cp .env.example .env   # rồi điền giá trị thật vào .env
+cp .env.example .env   # rồi điền giá trị thật vào .env (KHÔNG commit .env)
 npx playwright install --with-deps
 ```
 
@@ -16,23 +16,36 @@ npx playwright install --with-deps
 npm test                 # chạy toàn bộ test (headless)
 npm run test:headed      # chạy có hiện trình duyệt
 npm run test:ui          # chạy với Playwright UI mode
-npm run test:auth        # chỉ chạy tests/auth.spec.ts
-npm run test:student     # chỉ chạy tests/create_student.spec.ts
+npm run test:auth        # tests/auth (login + register)
+npm run test:register    # chỉ tests/auth/register.spec.ts
+npm run test:login       # chỉ tests/auth/login.spec.ts
+npm run test:student     # chỉ tests/student/create-student.spec.ts
+npm run test:import      # chỉ tests/student/import-student.spec.ts
+npm run test:export      # tests/student/export-excel.spec.ts + export-pdf.spec.ts
 npm run report           # mở report HTML lần chạy gần nhất
 ```
 
 ## Cấu trúc project
 
 ```
-pages/      Page Object Model (BasePage, LoginPage, RegisterPage, StudentPage)
-tests/      Test spec files
-utils/      env.ts (đọc biến môi trường), constants.ts (giá trị cố định),
-            test-data.ts (factory sinh dữ liệu test động)
+pages/        Page Object Model (BasePage, LoginPage, RegisterPage, StudentPage)
+tests/        Test spec files, chia theo domain (auth/, student/)
+constants/    env.ts (đọc biến môi trường), url.ts (API endpoint), messages.ts (message cố định)
+test-data/    Factory sinh dữ liệu test động theo domain (register.data.ts, student.data.ts, login.data.ts)
+              + file mẫu tĩnh (excel/student-import.xlsx)
+utils/        Helper kỹ thuật thuần tuý, không gắn business domain
+              (excel.ts đọc file .xlsx, download.ts xử lý file tải về, random.ts sinh giá trị ngẫu nhiên)
 ```
 
 ## Quy ước
 
-- Không hardcode secret/dữ liệu test cố định trong source — dùng `.env` (xem `.env.example`).
-- Mỗi test tự sinh dữ liệu riêng qua `utils/test-data.ts` và tự cleanup ở `afterAll`/`afterEach`,
-  để test idempotent và chạy song song an toàn.
-- Mọi tương tác UI đi qua Page Object trong `pages/`, không viết locator trực tiếp trong file test.
+- Không hardcode secret trong source — luôn đọc qua `.env` (xem `.env.example`).
+  `constants/env.ts` sẽ throw lỗi ngay khi thiếu biến bắt buộc (fail-fast) thay vì
+  âm thầm chạy với giá trị mặc định sai.
+- Mỗi test tự sinh dữ liệu riêng qua `test-data/*.data.ts` và tự cleanup ở
+  `afterAll` (xoá đúng user/dữ liệu mà chính test đó tạo ra), để test idempotent
+  và chạy song song an toàn.
+- Mọi tương tác UI đi qua Page Object trong `pages/`, không viết locator trực
+  tiếp trong file test.
+- Endpoint API dùng cho setup/teardown tập trung ở `constants/url.ts`, không rải
+  string `'/api/...'` trong từng spec.

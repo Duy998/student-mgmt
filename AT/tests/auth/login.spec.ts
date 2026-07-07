@@ -1,29 +1,36 @@
 import { test, expect } from '@playwright/test';
+import { buildRegisterData } from '../../test-data/register.data';
+import { ENV } from '../../constants/env';
+import { API } from '../../constants/url';
+import { LoginPage } from '../../pages/LoginPage';
+import { StudentPage } from '../../pages/StudentPage';
 
+test.describe('Login', () => {
+  const user = buildRegisterData();
 
-// Hai test bên dưới phụ thuộc thứ tự (đăng ký trước, login sau dùng chung user)
-// nên chạy serial để tránh race condition khi fullyParallel đang bật ở config.
-test.describe.serial('Login', () => {
-  const registerData = buildRegisterData();
+  // Tạo sẵn user qua API — test này chỉ verify hành vi LOGIN, không nên
+  // phụ thuộc vào luồng UI register (đó là trách nhiệm của register.spec.ts).
+  test.beforeAll(async ({ request }) => {
+    const response = await request.post(API.auth.register, { data: user });
+    if (!response.ok()) {
+      throw new Error(`Setup thất bại: không tạo được user test. Status: ${response.status()}`);
+    }
+  });
 
   test.afterAll(async ({ request }) => {
-    // Dọn dữ liệu user vừa tạo để không ảnh hưởng các lần chạy tiếp theo.
-    const response = await request.delete('/api/admin/delete-user', {
-      params: {
-        username: registerData.username,
-        secret: ENV.adminApiSecret,
-      },
+    const response = await request.delete(API.admin.deleteUser, {
+      params: { username: user.username, secret: ENV.adminApiSecret },
     });
     expect(response.ok()).toBeTruthy();
   });
 
-  test('AUTH-01: Đăng nhập bằng tài khoản vừa đăng ký thành công', async ({ page }) => {
+  test('AUTH-02: Đăng nhập bằng tài khoản hợp lệ thành công', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const studentPage = new StudentPage(page);
 
     await loginPage.open(ENV.baseURL);
-    await loginPage.login(registerData.username, registerData.password);
+    await loginPage.login(user.username, user.password);
 
-    await studentPage.expectLoaded(registerData.fullname);
+    await studentPage.expectLoaded(user.fullname);
   });
 });
