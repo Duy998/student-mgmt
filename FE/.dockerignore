@@ -1,3 +1,5 @@
-Dockerfile
-nginx.conf
-*.md
+.git
+.gitignore
+.idea
+.vscode
+README.md

@@ -8,7 +8,7 @@ from sqlalchemy import or_, func
 from ..core import get_db
 from ..models import Student
 from ..schemas import StudentCreate, StudentUpdate, StudentOut, Statistics
-from ..services import get_active_user, get_admin_user
+from ..services import get_active_user, get_admin_user, get_active_user_or_apikey, get_admin_user_or_apikey
 from ..models import User
 
 router = APIRouter(prefix="/students", tags=["Students"])
@@ -28,7 +28,7 @@ def list_students(
     search: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     q = db.query(Student)
     if search:
@@ -47,7 +47,7 @@ def list_students(
 @router.get("/statistics", response_model=Statistics)
 def get_statistics(
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     total = db.query(Student).count()
     active = db.query(Student).filter(Student.status == "active").count()
@@ -60,7 +60,7 @@ def get_statistics(
 @router.get("/export/excel")
 def export_excel(
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     try:
         import openpyxl
@@ -111,7 +111,7 @@ def export_excel(
 @router.get("/export/pdf")
 def export_pdf(
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     try:
         from reportlab.lib.pagesizes import A4, landscape
@@ -166,7 +166,7 @@ def export_pdf(
 
 @router.get("/import/template")
 def download_import_template(
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     try:
         import openpyxl
@@ -218,7 +218,7 @@ def download_import_template(
 async def import_excel(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     try:
         import openpyxl
@@ -350,7 +350,7 @@ async def import_excel(
 def create_student(
     payload: StudentCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     if db.query(Student).filter(Student.student_code == payload.student_code).first():
         raise HTTPException(status_code=400, detail="Student code already exists")
@@ -364,7 +364,7 @@ def create_student(
 
 
 @router.get("/{student_id}", response_model=StudentOut)
-def get_student(student_id: int, db: Session = Depends(get_db), _: User = Depends(get_active_user)):
+def get_student(student_id: int, db: Session = Depends(get_db), _: User = Depends(get_active_user_or_apikey)):
     return _get_or_404(db, student_id)
 
 
@@ -373,7 +373,7 @@ def update_student(
     student_id: int,
     payload: StudentUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     s = _get_or_404(db, student_id)
     for k, v in payload.model_dump(exclude_unset=True).items():
@@ -387,7 +387,7 @@ def update_student(
 def delete_student(
     student_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),  # Only admin can delete
+    _: User = Depends(get_admin_user_or_apikey),  # Only admin can delete
 ):
     s = _get_or_404(db, student_id)
     db.delete(s)

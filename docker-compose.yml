@@ -1,31 +1,71 @@
+version: "3.9"
+
 services:
+
   db:
-    image: postgres:16-alpine
+    image: postgres:17
+
+    container_name: student-db
+
+    restart: unless-stopped
+
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: student_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   backend:
-    build: ./BE
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/student_db
-      SECRET_KEY: ci-only-secret-key-not-for-production
-      ALLOWED_ORIGINS: http://localhost,http://localhost:80
-    depends_on:
-      db:
-        condition: service_healthy
+
+    build:
+      context: ./BE
+
+    container_name: student-be
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
     ports:
       - "8000:8000"
 
+    depends_on:
+      db:
+        condition: service_healthy
+
+    volumes:
+      - ./BE:/app
+
   frontend:
-    build: ./FE
+
+    build:
+      context: ./FE
+
+    container_name: student-fe
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
     depends_on:
       - backend
-    ports:
-      - "80:80"
+
+    volumes:
+      - ./FE:/FE
+
+volumes:
+
+  postgres_data:

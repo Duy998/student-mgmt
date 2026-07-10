@@ -9,6 +9,6 @@ export const API = {
     register: '/api/auth/register',
   },
   admin: {
-    deleteUser: '/api/admin/delete-user',
+    deleteUserByUsername: (username: string) => `/api/users/by-username/${username}`,
   },
 };

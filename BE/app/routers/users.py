@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..core import get_db, hash_password
 from ..models import User
 from ..schemas import UserOut, UserUpdate
-from ..services import get_admin_user, get_active_user
+from ..services import get_active_user, get_admin_user, get_active_user_or_apikey, get_admin_user_or_apikey
 
 router = APIRouter(prefix="/users", tags=["Users (Admin)"])
 
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/users", tags=["Users (Admin)"])
 @router.get("/", response_model=List[UserOut])
 def list_users(
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     return db.query(User).order_by(User.id).all()
 
@@ -21,7 +21,7 @@ def list_users(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -34,7 +34,7 @@ def update_user(
     user_id: int,
     payload: UserUpdate,
     db: Session = Depends(get_db),
-    current_admin: User = Depends(get_admin_user),
+    current_admin: User = Depends(get_admin_user_or_apikey),
 ):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -51,14 +51,28 @@ def update_user(
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(
+def delete_user_id(
     user_id: int,
     db: Session = Depends(get_db),
-    current_admin: User = Depends(get_admin_user),
+    current_admin: User = Depends(get_admin_user_or_apikey),
 ):
     if user_id == current_admin.id:
         raise HTTPException(status_code=400, detail="Cannot delete your own account")
     user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+
+@router.delete("/by-username/{user_name}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user_by_username(
+    user_name: str,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_admin_user_or_apikey),
+):
+    if user_name == current_admin.username:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    user = db.query(User).filter(User.username == user_name).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(user)

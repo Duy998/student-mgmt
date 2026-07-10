@@ -1,0 +1,195 @@
+============================================
+============================================
+1. File package.json
+- Quảng lý cấu hình và các phần phụ thuộc (dependencies) dựa trên nền tảng Node.js
++ Dependencies và DevDependencies
+    Liệt kê các gói phần mềm cần thiết để chạy dự án
++ Scripts
+    Định nghĩa các phím tắt (lệnh) để thực thi các chức năng của Playwright thông qua dòng lệnh:
+        Chạy toàn bộ các test: "test": "npx playwright test"
+        Chạy test có giao diện trực quan: "test:ui": "npx playwright test --ui"
+        Xem báo cáo kết quả kiểm thử: "show:report": "npx playwright show-report"
+        Chạy 1 file : "test:register": "playwright test tests/auth/register.spec.ts",
+============================================
+============================================
+2. File package-lock.json
+- File package-lock.json trong dự án Playwright có vai trò cố định phiên bản chính xác của Playwright và tất cả các thư viện phụ thuộc (sub-dependencies).
++ Khóa phiên bản: 
+    Nếu file package.json chỉ định phiên bản Playwright chung chung (ví dụ: ^1.40.0), thì package-lock.json sẽ lưu lại phiên bản chính xác đã được tải về (ví dụ: 1.40.1).
++ Đảm bảo tính đồng nhất: 
+    Khi bạn chia sẻ code, thành viên khác trong nhóm hoặc máy chủ CI/CD (như GitHub Actions) sẽ cài đặt đúng các gói thư viện phiên bản giống hệt như máy của bạn
++ Tăng tốc độ cài đặt: 
+    Npm sẽ cài đặt nhanh hơn rất nhiều vì nó không cần phải phân giải các phiên bản phụ thuộc từ đầu.
+
+============================================
+============================================
+3. node_modules
+- Thư mục node_modules trong Playwright là nơi chứa toàn bộ mã nguồn của thư viện Playwright và các gói phụ thuộc (dependencies) của Node.js
+============================================
+============================================
+4. tsconfig.json
+- File tsconfig.json trong Playwright được dùng để thiết lập môi trường biên dịch TypeScript
++ compilerOptions:
+    paths: Chúng giúp bạn import các file hoặc hàm dùng chung bằng đường dẫn tuyệt đối (absolute paths) thay vì dùng chuỗi tương đối dài dòng như "../../../"
+        "@API/*": ["API/*"]
+            import {UserApi} from '@API/UserApi' = import { API } from '../../constants/url'; 
+============================================
+============================================
+5. playwright.config.ts
+- Là trung tâm quản lý cấu hình trong Playwright, cho phép bạn thiết lập cách thức thực thi các bài kiểm thử (test)
++ testDir: Thư mục chứa các tệp kiểm thử (mặc định thường là ./tests)
++ testMatch & testIgnore: Xác định các tệp nào sẽ được chạy hoặc bỏ qua bằng glob pattern hoặc biểu thức chính quy.
++ retries: Số lần chạy lại bài kiểm thử nếu nó bị lỗi (rất hữu ích để tránh flaky test).
++ fullyParallel: Bật/tắt chế độ chạy song song toàn bộ các tệp test giúp tiết kiệm thời gian
++ use: Chứa các tùy chọn dùng chung cho trình duyệt như baseURL, browserName (chromium, firefox, webkit)
++ projects: Cấu hình chạy test trên nhiều môi trường hoặc thiết bị khác nhau (ví dụ: Chrome desktop, Mobile Safari).
++ timeout: Mỗi test tối đa
++ reporter: tạo file report (html,list)
+
+=======================================Page Object Model (POM).=================================================
+================================================================================================================
+1. folder tests/
+Đây là nơi chứa toàn bộ test cases
+============================================
+============================================
+2. pages/
+Đây là nơi chứa toàn bộ Page Object.
+Ví dụ website có:
+    Login
+    Register
+    Dashboard
+
+thì tạo:
+    pages/
+        LoginPage.ts
+        RegisterPage.ts
+        DashboardPage.ts
+
+============================================
+============================================
+3. fixtures/
+Fixture là một đối tượng hoặc môi trường được Playwright chuẩn bị sẵn trước khi testcase chạy, và tự động dọn dẹp sau khi testcase kết thúc.
+
+Giả sử mỗi test đều phải
+    Open browser -> Login -> Đi tới Das
+
+Nếu không dùng Fixture
+    test("A",async({page})=>{
+
+    login
+
+    dashboard
+
+    ...
+    })
+
+    test("B",async({page})=>{
+
+    login
+
+    dashboard
+
+    })
+
+    test("C",async({page})=>{
+
+    login
+
+    dashboard
+
+    })  
+    ===> Login lặp lại 200 lần.
+
+Fixture sẽ tạo sẵn.
+    export const test = base.extend({
+        loginPage: async ({ page }, use) => {
+            await use(new LoginPage(page));
+        }
+    });
+
+Sau này test
+    test("Login", async ({ loginPage }) => {
+
+        await loginPage.goto();
+
+    });
+
+====> Không cần new LoginPage(page)
+
+============================================
+============================================
+4. utils/
+Là nơi chứa các hàm dùng nhiều lần.
+
+Ví dụ random.
+    export function randomNumber(length:number){
+
+        return Math.random().toString().slice(2,length+2);
+
+    }
+Sau này
+    const username = "student" + randomNumber(5);
+============================================
+============================================
+5. constants/
+Đây là nơi chứa dữ liệu cố định.
+
+    constants/
+        config.ts
+        message.ts
+        user.ts
+        endpoint.ts
+============================================
+============================================
+│
+├── pages
+│      LoginPage.ts
+│      RegisterPage.ts
+│      StudentPage.ts
+│
+├── tests
+│      login.spec.ts
+│      register.spec.ts
+│      student.spec.ts
+│
+├── fixtures
+│      test.fixture.ts
+│
+├── utils
+│      excelHelper.ts
+│      random.ts
+│      fileHelper.ts
+│
+├── constants
+│      config.ts
+│      endpoint.ts
+│      message.ts
+│
+├── test-data
+│      users.json
+│      students.xlsx
+│
+├── reports
+│
+├── playwright.config.ts
+│
+└── package.json
+
+
+src/
+├── pages/          # Page Object Model
+├── components/     # Component dùng chung (Header, Sidebar, Modal...)
+├── fixtures/       # Custom Playwright fixtures
+├── utils/          # Helper, random, Excel, API...
+├── constants/      # Config, message, endpoint, role...
+├── test-data/      # JSON, Excel, CSV
+├── types/          # TypeScript interfaces
+├── api/            # API clients (StudentApi, AuthApi...)
+├── factories/      # Sinh dữ liệu test (StudentFactory...)
+└── assertions/     # Custom assertions
+============================================
+============================================
+
+
+============================================
+============================================

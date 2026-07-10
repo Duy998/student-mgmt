@@ -14,7 +14,15 @@ function requireEnv(name: string, fallbackForLocalDev?: string): string {
 }
 
 export const ENV = {
-  baseURL: process.env.BASE_URL ?? 'http://127.0.0.1:8080/',
-  adminApiSecret: requireEnv('ADMIN_API_SECRET'),
+  ui: {
+    baseUrl: process.env.BASE_URL ?? 'http://localhost:8080',
+  },
+  api: {
+    baseUrl: process.env.API_BASE_URL ?? 'http://localhost:8000',
+    adminApiSecret: process.env.ADMIN_API_SECRET ?? '1f6e5d3c0a2e7b4d6f9a8c1e5b7d3a1c2f4e6d8b9c0a1e2d3f4b5c6d7e8f9bo',
+    
+  },
+  
   testUserPassword: process.env.TEST_USER_PASSWORD ?? '123456',
 };
+

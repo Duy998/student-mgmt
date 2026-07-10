@@ -9,7 +9,7 @@ from sqlalchemy import or_
 from ..core import get_db
 from ..models import Question, QuizAttempt, User
 from ..schemas import QuestionOut, QuestionAdminOut, QuizSubmitPayload, QuizResult, AttemptOut
-from ..services import get_active_user, get_admin_user
+from ..services import get_active_user, get_admin_user, get_active_user_or_apikey, get_admin_user_or_apikey
 
 router = APIRouter(prefix="/quiz", tags=["Quiz"])
 
@@ -26,7 +26,7 @@ def list_questions(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=500),
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     q = db.query(Question)
     if grade:
@@ -45,7 +45,7 @@ def list_questions(
 def delete_question(
     question_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     q = db.query(Question).filter(Question.id == question_id).first()
     if not q:
@@ -55,7 +55,7 @@ def delete_question(
 
 
 @router.get("/questions/template")
-def download_question_template(_: User = Depends(get_admin_user)):
+def download_question_template(_: User = Depends(get_admin_user_or_apikey)):
     try:
         import openpyxl
         from openpyxl.styles import Font, PatternFill, Alignment
@@ -108,7 +108,7 @@ async def import_questions(
     file: UploadFile = File(...),
     overwrite: bool = Query(False, description="Overwrite existing codes"),
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     try:
         import openpyxl
@@ -204,7 +204,7 @@ def draw_questions(
     grade: Optional[int] = Query(None),
     topic: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_active_user),
+    _: User = Depends(get_active_user_or_apikey),
 ):
     """Return N random questions WITHOUT the answer field."""
     q = db.query(Question)
@@ -223,7 +223,7 @@ def draw_questions(
 def submit_quiz(
     payload: QuizSubmitPayload,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_active_user),
+    current_user: User = Depends(get_active_user_or_apikey),
 ):
     if not payload.answers:
         raise HTTPException(status_code=400, detail="Không có câu trả lời nào.")
@@ -262,7 +262,7 @@ def list_results(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
-    _: User = Depends(get_admin_user),
+    _: User = Depends(get_admin_user_or_apikey),
 ):
     q = db.query(QuizAttempt)
     if username:
