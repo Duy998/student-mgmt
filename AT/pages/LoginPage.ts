@@ -1,11 +1,12 @@
 import { Page, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { LOGIN_SELECTORS } from '@constants/selectors/pages/login.page';
 
 export class LoginPage extends BasePage {
   private readonly usernameInput = this.page.getByPlaceholder('Nhập tên đăng nhập');
   private readonly passwordInput = this.page.getByPlaceholder('Nhập mật khẩu');
   private readonly loginButton = this.page.locator('.btn-login');
-  private readonly pageTitle = this.page.getByText('Quản lý Học sinh');
+  pageTitle = this.page.getByText(LOGIN_SELECTORS.title);
 
   constructor(page: Page) {
     super(page);
