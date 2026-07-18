@@ -9,16 +9,16 @@ pipeline {
             }
         }
 
-        stage('Run Playwright Tests') {
+        stage('Install Dependencies & Run Playwright Tests') {
             steps {
                 echo '🧪 Running Playwright tests...'
                 script {
-                    // Cd vào thư mục AT và chạy test
+                    // Di chuyển vào thư mục AT
                     dir('AT') {
-                        // Cài dependencies nếu chưa có
-                        sh 'npm install'
+                        // Cài dependencies (dùng bat thay vì sh)
+                        bat 'npm install'
                         // Chạy test
-                        sh 'npm test'
+                        bat 'npm test'
                     }
                 }
             }
@@ -27,15 +27,15 @@ pipeline {
         stage('Build with Docker Compose') {
             steps {
                 echo '🐳 Building Docker images...'
-                // Build các service (backend, frontend, db)
-                sh 'docker-compose build'
+                // Dùng bat cho Windows
+                bat 'docker-compose build'
             }
         }
 
         stage('Start Services') {
             steps {
                 echo '🚀 Starting services...'
-                sh 'docker-compose up -d'
+                bat 'docker-compose up -d'
                 // Đợi services khởi động
                 sleep time: 15, unit: 'SECONDS'
             }
@@ -46,9 +46,9 @@ pipeline {
                 echo '🏥 Checking if services are running...'
                 script {
                     // Kiểm tra containers đang chạy
-                    sh 'docker ps | grep student-db || exit 1'
-                    sh 'docker ps | grep student-be || exit 1'
-                    sh 'docker ps | grep student-fe || exit 1'
+                    bat 'docker ps | findstr student-db'
+                    bat 'docker ps | findstr student-be'
+                    bat 'docker ps | findstr student-fe'
                     echo '✅ All services are running!'
                 }
             }
@@ -58,8 +58,7 @@ pipeline {
     post {
         always {
             echo '🧹 Cleaning up...'
-            // Dừng và xóa containers
-            sh 'docker-compose down || true'
+            bat 'docker-compose down || exit 0'
         }
         success {
             echo '✅ All tests passed and services built successfully!'
