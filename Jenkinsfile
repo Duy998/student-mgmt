@@ -75,8 +75,7 @@ pipeline {
 
     }
 
-    post {
-
+post {
     always {
 
         publishHTML(target: [
@@ -88,25 +87,15 @@ pipeline {
             reportName: 'Playwright Report'
         ])
 
-        archiveArtifacts artifacts: '''
-AT/playwright-report/**
-AT/test-results/**/*.png
-AT/test-results/**/*.webm
-AT/test-results/**/*.zip
-''',
-        fingerprint: true
+        archiveArtifacts(
+            artifacts: 'AT/playwright-report/**,AT/test-results/**',
+            allowEmptyArchive: true,
+            fingerprint: true
+        )
 
         bat 'docker-compose down -v'
 
         bat 'if exist .env del .env'
-    }
-
-    success {
-        echo 'Pipeline SUCCESS'
-    }
-
-    failure {
-        echo 'Pipeline FAILED'
     }
 }
 
