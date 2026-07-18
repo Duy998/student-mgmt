@@ -43,7 +43,7 @@ export default defineConfig({
     // },
     trace: 'on-first-retry',
     // Only keep videos/screenshots on failure to avoid increasing artifact size on CI.
-    video: 'retain-on-failure',
+    video: 'on',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
     navigationTimeout: 30000,

@@ -9,7 +9,6 @@ export class BasePage {
 
   async clickAndWait(locator: Locator) {
     await locator.scrollIntoViewIfNeeded();
-    await expect(locator).toBeEnabled();
     await locator.click();
   }
 

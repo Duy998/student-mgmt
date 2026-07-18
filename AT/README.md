@@ -14,6 +14,7 @@ npx playwright install --with-deps
 
 ```bash
 npm test                 # run all tests (headless)
+npm run report           # open the HTML report from the latest run
 npm run test:headed      # run with browser visible
 npm run test:ui          # run with Playwright UI mode
 npm run test:auth        # tests/auth (login + register)
@@ -22,7 +23,6 @@ npm run test:login       # only tests/auth/login.spec.ts
 npm run test:student     # only tests/student/create-student.spec.ts
 npm run test:import      # only tests/student/import-student.spec.ts
 npm run test:export      # tests/student/export-excel.spec.ts + export-pdf.spec.ts
-npm run report           # open the HTML report from the latest run
 ```
 
 ## Cấu trúc project

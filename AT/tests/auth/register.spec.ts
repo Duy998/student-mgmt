@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/test.fixture';
 import { buildRegisterData } from '@test-data/register.data';
 import { ENV } from '@constants/env';
-import { MESSAGE } from '@constants/messages';
 import {UserApi} from '@API/user.api';
 
 
@@ -14,11 +13,11 @@ test.describe('Register', () => {
     expect(response.ok()).toBeTruthy();
   });
 
-  test('AUTH-01: New account registration successful', async ({ loginPage,registerPage, registerAssertion }) => {
+  test('AUTH-01: New account registration successful', async ({ loginPage,registerPage, registerAssertion, loginAssertion }) => {
     await loginPage.open(ENV.ui.baseUrl);
     await registerPage.openFromLogin();
     await registerPage.register(registerData);
-    await registerPage.expectToastVisible(MESSAGE.AUTH.registerSuccess);
-    //await registerAssertion.verifyRegisterSuccess();
+    await registerAssertion.verifyRegisterSuccess();
+    await loginAssertion.verifyTitleLogin();
   });
 });

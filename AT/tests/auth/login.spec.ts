@@ -18,10 +18,9 @@ test.describe('Login', () => {
     expect(response.ok()).toBeTruthy();
   });
 
-  test('AUTH-02: Login successful with valid account', async ({ loginPage }) => {
-
+  test('AUTH-02: Login successful with valid account', async ({ loginPage, loginAssertion }) => {
     await loginPage.open(ENV.ui.baseUrl);
     await loginPage.login(user.username, user.password);
-    await expect(loginPage.usernameInfo).toBeVisible();
+    await loginAssertion.verifyLoginSucess();
   });
 });

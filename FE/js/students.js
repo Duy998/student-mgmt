@@ -268,7 +268,7 @@ async function submitStudentForm(e) {
       showToast('Saved successfully', 'success');   
     } else {
       await api.createStudent(payload);
-      showToast('Saved successfully', 'success');   
+      showToast('Student added successfully!', 'success');   
     }
     closeStudentModal();
     loadStudents();
