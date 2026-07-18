@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     environment {
@@ -13,94 +14,106 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+
+        stage('Checkout Source') {
             steps {
-                echo '📦 Pulling code from GitHub...'
                 checkout scm
             }
         }
 
-        stage('Create .env file') {
+        stage('Create .env') {
             steps {
-                echo '📝 Creating .env file...'
-                script {
-                    // Tạo file .env từ environment variables
-                    bat '''
-                        echo POSTGRES_USER=%POSTGRES_USER% > .env
-                        echo POSTGRES_PASSWORD=%POSTGRES_PASSWORD% >> .env
-                        echo POSTGRES_DB=%POSTGRES_DB% >> .env
-                        echo DATABASE_URL=%DATABASE_URL% >> .env
-                        echo SECRET_KEY=%SECRET_KEY% >> .env
-                        echo ACCESS_TOKEN_EXPIRE_MINUTES=%ACCESS_TOKEN_EXPIRE_MINUTES% >> .env
-                        echo API_SECRET_KEY=%API_SECRET_KEY% >> .env
-                        echo ALLOWED_ORIGINS=%ALLOWED_ORIGINS% >> .env
-                    '''
-                }
+
+                bat '''
+                (
+                echo POSTGRES_USER=%POSTGRES_USER%
+                echo POSTGRES_PASSWORD=%POSTGRES_PASSWORD%
+                echo POSTGRES_DB=%POSTGRES_DB%
+                echo DATABASE_URL=%DATABASE_URL%
+                echo SECRET_KEY=%SECRET_KEY%
+                echo ACCESS_TOKEN_EXPIRE_MINUTES=%ACCESS_TOKEN_EXPIRE_MINUTES%
+                echo API_SECRET_KEY=%API_SECRET%
+                echo ALLOWED_ORIGINS=%ALLOWED_ORIGINS%
+                )>.env
+                '''
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Build Docker') {
             steps {
-                echo '🐳 Building Docker images...'
                 bat 'docker-compose build'
             }
         }
 
-        stage('Start Services') {
+        stage('Start Docker') {
             steps {
-                echo '🚀 Starting all services...'
                 bat 'docker-compose up -d'
-                echo '⏳ Waiting for services to be ready...'
-                sleep time: 30, unit: 'SECONDS'
             }
         }
 
-        stage('Verify Services Running') {
+        stage('Wait Backend') {
             steps {
-                echo '🏥 Checking if services are running...'
-                script {
-                    bat 'docker ps | findstr student-db'
-                    bat 'docker ps | findstr student-be'
-                    bat 'docker ps | findstr student-fe'
-                    echo '✅ All services are running!'
-                }
+                sleep(time:30, unit:'SECONDS')
             }
         }
 
-        stage('Install Playwright & Run Tests') {
+        stage('Run Playwright Test') {
             steps {
-                echo '🧪 Setting up and running Playwright tests...'
-                script {
-                    dir('AT') {
-                        bat 'npm install'
-                        bat 'npx playwright install'
-                        bat 'npm test'
-                    }
-                }
-            }
-        }
 
-        stage('Generate Test Report') {
-            steps {
-                echo '📊 Generating test report...'
                 dir('AT') {
-                    bat 'npx playwright show-report || echo "Report generation skipped"'
+
+                    bat 'npm install'
+
+                    bat 'npx playwright install'
+
+                    bat 'npx playwright test'
+
                 }
+
             }
         }
+
     }
 
     post {
+
         always {
-            echo '🧹 Cleaning up...'
-            bat 'del .env || exit 0'
-            bat 'docker-compose down -v || exit 0'
+
+            junit allowEmptyResults: true,
+                  testResults: 'AT/test-results/results.xml'
+
+            publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'AT/playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright Report'
+            ])
+
+            archiveArtifacts artifacts: '''
+AT/playwright-report/**
+AT/test-results/**
+AT/test-results/**/*.png
+AT/test-results/**/*.webm
+AT/test-results/**/*.zip
+''',
+            fingerprint: true
+
+            bat 'docker-compose down -v'
+
+            bat 'del .env'
+
         }
+
         success {
-            echo '✅ Pipeline completed successfully!'
+            echo 'Pipeline SUCCESS'
         }
+
         failure {
-            echo '❌ Pipeline failed! Check the logs.'
+            echo 'Pipeline FAILED'
         }
+
     }
+
 }
