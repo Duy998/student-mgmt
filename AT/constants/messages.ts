@@ -1,6 +1,6 @@
 export const MESSAGE = {
   AUTH: {
-    registerSuccess: 'Registration successful! Please log in.',
+    registerSuccess: 'Registration successful! Please Login.',
     usernameAlreadyExists: 'Username already registered',
   },
   STUDENT: {

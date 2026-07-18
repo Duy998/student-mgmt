@@ -13,7 +13,7 @@ export class BasePage {
     await locator.click();
   }
 
-  async expectToastVisible(message: string) {
-    await expect(this.page.getByText(message)).toBeVisible();
+  async expectToastVisible(title: string) {
+    await expect(this.page).toHaveTitle(title);
   }
 }

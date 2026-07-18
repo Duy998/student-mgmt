@@ -190,7 +190,7 @@ def download_import_template(
         cell.alignment = Alignment(horizontal="center")
 
     # One example row to guide the user
-    ws.append(["HS001", "Nguyen Van A", "01/09/2008", "Nam", "vana@example.com", "0901234567", "10A1", 8.5, "active"])
+    ws.append(["HS001", "Nguyen Van A", "01/09/2008", "Male", "vana@example.com", "0901234567", "10A1", 8.5, "active"])
 
     col_widths = [12, 25, 20, 10, 30, 14, 10, 10, 15]
     for i, w in enumerate(col_widths, 1):

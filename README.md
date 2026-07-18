@@ -1,177 +1,202 @@
-# Hệ thống Student Management
+## Chạy bằng Docker Compose (Khuyến nghị)
 
-Ứng dụng Student Management full-stack: FastAPI + PostgreSQL (backend), HTML/CSS/JS thuần (frontend), đóng gói bằng Docker.
+### 1. Chuẩn bị
 
-## Cấu trúc project
+Đảm bảo đã cài đặt:
 
-```
-student-mgmt/
-├── BE/                     # Backend - FastAPI
-│   ├── app/
-│   │   ├── core/           # config, database, security (JWT, bcrypt)
-│   │   ├── models/         # SQLAlchemy models
-│   │   ├── schemas/        # Pydantic schemas
-│   │   ├── routers/        # auth, students, users
-│   │   ├── services/       # auth dependencies (role checking)
-│   │   └── main.py         # entrypoint
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env.example
-├── FE/                      # Frontend - static HTML/CSS/JS
-│   ├── css/                 # style.css (design tokens), auth.css, dashboard.css
-│   ├── js/                  # config.js (API client), auth.js, students.js, users.js, dashboard.js
-│   ├── login.html / register.html / dashboard.html / index.html
-│   ├── nginx.conf
-│   └── Dockerfile
-├── docker-compose.yml
-└── .env.example
-```
+- Docker Desktop 4.x trở lên
+- Docker Compose (đi kèm Docker Desktop)
 
-## Chạy bằng Docker (khuyến nghị)
+Kiểm tra:
 
-1. Copy file môi trường:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   > **Windows (PowerShell):**
-   >
-   > ```powershell
-   > copy .env.example .env
-   > ```
-
-2. Mở file `.env` và cập nhật các thông tin cần thiết:
-
-   - Tạo `SECRET_KEY` ngẫu nhiên:
-     ```bash
-     openssl rand -hex 32
-     ```
-   - Nếu PostgreSQL đang chạy trên máy host (không chạy bằng Docker), cập nhật:
-     ```env
-     DATABASE_URL=postgresql://postgres:123456@host.docker.internal:5432/student_db
-     ```
-
-3. Build Docker Image cho Backend:
-
-   ```bash
-   cd BE
-   docker build -t student-be .
-   ```
-
-4. Chạy Backend Container:
-
-   ```bash
-   docker run -d --name student-be -p 8000:8000 -e DATABASE_URL="postgresql://postgres:123456@host.docker.internal:5432/student_db" student-be
-
-   ```
-
-5. Build Docker Image cho Frontend:
-
-   ```bash
-   cd ../FE
-   docker build -t student-fe .
-   ```
-
-6. Chạy Frontend Container:
-
-   ```bash
-   docker run -d --name student-fe -p 8080:8080 student-fe
-   ```
-
-7. Truy cập hệ thống:
-
-   - Frontend: http://localhost:8080
-   - API Docs (Swagger): http://localhost:8000/api/docs
-
-8. Login với tài khoản admin được tạo sẵn:
-
-   - Username: `admin`
-   - Password: `Admin@123`
-
-   > **Khuyến nghị:** Đổi Password ngay sau lần Login đầu tiên.
-
-9. Một số lệnh Docker hữu ích:
-
-   ```bash
-   # Xem container đang chạy
-   docker ps
-
-   # Xem log Backend
-   docker logs student-be
-
-   # Xem log Frontend
-   docker logs student-fe
-
-   # Truy cập vào container
-   docker exec -it student-be sh
-   docker exec -it student-fe sh
-
-   # Dừng container
-   docker stop student-be student-fe
-
-   # Khởi động lại container
-   docker start student-be student-fe
-   ```
-
-## Deploy lên Railway (online, miễn phí)
-
-Railway hỗ trợ deploy trực tiếp từ Dockerfile + PostgreSQL built-in, không cần VPS.
-
-1. Tạo tài khoản tại [railway.app](https://railway.app), tạo **New Project**.
-2. Add **PostgreSQL** plugin (Railway tự cấp `DATABASE_URL`).
-3. Add service **Backend**:
-   - Connect repo, chọn root directory `BE/`
-   - Railway tự build theo `Dockerfile`
-   - Set biến môi trường: `SECRET_KEY`, `ALLOWED_ORIGINS` (domain frontend), `DATABASE_URL` (copy từ PostgreSQL plugin, hoặc dùng reference variable `${{Postgres.DATABASE_URL}}`)
-4. Add service **Frontend**:
-   - Root directory `FE/`
-   - Trong `FE/js/config.js`, sửa lại `API_BASE_URL` thành domain backend Railway cấp (vd: `https://your-backend.up.railway.app/api`)
-   - Hoặc sửa `nginx.conf` để proxy `/api/` sang domain backend Railway thay vì `backend:8000`
-5. Railway tự cấp domain HTTPS công khai cho cả 2 service.
-
-> Lưu ý: khi deploy online, sửa `FE/js/config.js` để `API_BASE_URL` trỏ đúng domain backend thật, vì khi đó frontend và backend không còn chạy trên cùng `localhost`.
-
-## Tài khoản & phân quyền
-
-| Vai trò | Quyền hạn |
-|---|---|
-| **User** thường | Xem, thêm, sửa học sinh; xuất Excel/PDF |
-| **Admin** | Tất cả quyền của User + xóa học sinh + quản lý tài khoản (cấp quyền admin, khóa/mở khóa, xóa user) |
-
-Tài khoản đăng ký mới qua `/register.html` mặc định là **User** thường. Chỉ Admin có thể cấp quyền Admin cho người khác qua trang **Quản lý người dùng**.
-
-## API chính
-
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| POST | `/api/auth/register` | Đăng ký |
-| POST | `/api/auth/login` | Login (trả JWT) |
-| GET | `/api/auth/me` | Thông tin user hiện tại |
-| PUT | `/api/auth/change-password` | Đổi Password |
-| GET | `/api/students/` | Danh sách học sinh (search, filter, pagination) |
-| GET | `/api/students/statistics` | Thống kê tổng quan |
-| GET | `/api/students/export/excel` | Xuất Excel |
-| GET | `/api/students/export/pdf` | Xuất PDF |
-| POST/PUT/DELETE | `/api/students/{id}` | CRUD học sinh (xóa cần quyền Admin) |
-| GET/PUT/DELETE | `/api/users/{id}` | Quản lý user (chỉ Admin) |
-
-Toàn bộ API có Swagger UI tại `/api/docs`.
-
-## Chạy local không dùng Docker (phát triển)
-
-**Backend:**
 ```bash
-cd BE
-python -m venv venv
-venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-# Cần PostgreSQL chạy sẵn, hoặc sửa DATABASE_URL trong .env sang sqlite tạm để test
-uvicorn app.main:app --reload
+docker --version
+docker compose version
 ```
 
-**Frontend:** mở `FE/index.html` trực tiếp bằng Live Server hoặc:
+---
+
+### 2. Cấu hình môi trường
+
+Copy file môi trường:
+
 ```bash
-cd FE
-python -m http.server 8080
+cp .env.example .env
 ```
+
+> **Windows (PowerShell)**
+
+```powershell
+copy .env.example .env
+```
+
+Mở file `.env` và cập nhật các thông tin cần thiết.
+
+Ví dụ:
+
+```env
+SECRET_KEY=your-secret-key
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=123456
+POSTGRES_DB=student_db
+
+DATABASE_URL=postgresql://postgres:123456@db:5432/student_db
+```
+
+> **Lưu ý**
+>
+> Khi sử dụng Docker Compose, Backend kết nối PostgreSQL thông qua tên service `db`, **không sử dụng** `localhost` hoặc `host.docker.internal`.
+
+---
+
+### 3. Build và khởi động hệ thống
+
+Tại thư mục gốc của project:
+
+```bash
+docker compose up --build
+```
+
+Hoặc chạy dưới nền:
+
+```bash
+docker compose up -d --build
+```
+
+Docker Compose sẽ tự động:
+
+- Build Backend Image
+- Build Frontend Image
+- Khởi tạo PostgreSQL
+- Tạo Docker Network
+- Khởi động Database
+- Khởi động Backend
+- Khởi động Frontend
+
+---
+
+### 4. Truy cập hệ thống
+
+| Service | URL |
+|----------|-----|
+| Frontend | http://localhost:8080 |
+| Backend API | http://localhost:8000 |
+| Swagger UI | http://localhost:8000/api/docs |
+
+---
+
+### 5. Đăng nhập
+
+Tài khoản Admin mặc định:
+
+| Username | Password |
+|----------|----------|
+| `admin` | `Admin@123` |
+
+> **Khuyến nghị:** Đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
+
+---
+
+### 6. Một số lệnh Docker Compose hữu ích
+
+Khởi động hệ thống:
+
+```bash
+docker compose up -d
+```
+
+Build lại Image:
+
+```bash
+docker compose up -d --build
+```
+
+Xem trạng thái:
+
+```bash
+docker compose ps
+```
+
+Xem log toàn bộ hệ thống:
+
+```bash
+docker compose logs
+```
+
+Theo dõi log realtime:
+
+```bash
+docker compose logs -f
+```
+
+Theo dõi Backend:
+
+```bash
+docker compose logs -f backend
+```
+
+Theo dõi Frontend:
+
+```bash
+docker compose logs -f frontend
+```
+
+Theo dõi Database:
+
+```bash
+docker compose logs -f db
+```
+
+---
+
+### 7. Truy cập vào Container
+
+Backend:
+
+```bash
+docker compose exec backend sh
+```
+
+Frontend:
+
+```bash
+docker compose exec frontend sh
+```
+
+Database:
+
+```bash
+docker compose exec db bash
+```
+
+---
+
+### 8. Dừng hệ thống
+
+```bash
+docker compose down
+```
+
+Dừng và xóa luôn Volume (xóa dữ liệu PostgreSQL):
+
+```bash
+docker compose down -v
+```
+
+---
+
+### 9. Cập nhật source code
+
+Trong môi trường Development, Backend và Frontend được mount bằng Docker Volume.
+
+- **Backend**: tự động reload khi thay đổi source code (`uvicorn --reload`).
+- **Frontend**: các thay đổi HTML/CSS/JS sẽ có hiệu lực sau khi refresh trình duyệt. Nếu sử dụng Live Server hoặc Vite sẽ hỗ trợ Hot Reload.
+
+Thông thường **không cần build lại image** khi chỉ sửa source code.
+
+Chỉ cần build lại khi:
+
+- Dockerfile thay đổi.
+- requirements.txt thay đổi.
+- Thêm package hệ thống.

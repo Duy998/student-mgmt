@@ -1,13 +1,23 @@
-import { expect } from "@playwright/test";
-import { LoginPage } from "@pages/LoginPage";
-import { MESSAGE } from "@constants/messages";
-import { RegisterPage } from '@pages/RegisterPage';
-export class LoginAssertion {
+import { Page } from "@playwright/test";
+import { RegisterPage } from "@pages/RegisterPage";
+import { MESSAGE } from '@constants/messages';
+import { BaseAssertion } from "./BaseAssertion";
 
-    constructor(private registerPage: RegisterPage){}
+
+export class RegisterAssertion extends BaseAssertion{
+
+
+    constructor(
+      page: Page,
+      private registerPage: RegisterPage){
+        super(page);
+      }
+    
+
     async verifyRegisterSuccess() {
-    await expect(this.registerPage.toast).toHaveText("Register successfully");    
-  }
+      //await expect(this.registerPage.pageTitle).toBeVisible();
+      await this.expectToastVisible(MESSAGE.AUTH.registerSuccess);
+    }
     
 
 }

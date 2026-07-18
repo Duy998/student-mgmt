@@ -6,7 +6,7 @@ export class LoginPage extends BasePage {
   private readonly usernameInput = this.page.getByLabel(LOGIN_SELECTORS.usernameInput);
   private readonly passwordInput = this.page.getByLabel(LOGIN_SELECTORS.passwordInput);
   private readonly loginButton = this.page.getByRole('button', { name: 'Login' })
-  pageTitle = this.page.getByText(LOGIN_SELECTORS.title);
+  pageTitle = this.page.getByRole("heading", {name: LOGIN_SELECTORS.title});
   usernameInfo = this.page.getByRole("heading", {name: LOGIN_SELECTORS.usernameInfo});
 
   constructor(page: Page) {
@@ -17,6 +17,8 @@ export class LoginPage extends BasePage {
     await this.goto(baseURL);
     await expect(this.pageTitle).toBeVisible();
   }
+
+
 
   async login(username: string, password: string) {
     await this.usernameInput.fill(username);

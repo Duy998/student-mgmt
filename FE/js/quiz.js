@@ -37,7 +37,7 @@ function fmtDuration(seconds) {
 function fmtDatetime(iso) {
   if (!iso) return '—';
 
-  const locale = getCurrentLang() === 'vi' ? 'vi-VN' : 'en-US';
+  const locale = 'en-US';
   return new Date(iso).toLocaleString(locale);
 }
 
@@ -57,14 +57,14 @@ async function startQuiz() {
   const btn = document.getElementById('start-quiz-btn');
   btn.disabled = true;
 
-  btn.innerHTML = `<span class="spinner"></span> ${t('quiz.loading')}`;
+  btn.innerHTML = `<span class="spinner"></span> ${'Loading questions...'}`;
 
   try {
     quizQuestions = await api.drawQuestions({ grade: grade || null, count });
   } catch (err) {
-    showToast(`${t('toast.noQuestions')}: ${err.message}`, 'error');
+    showToast(`${'No matching questions found'}: ${err.message}`, 'error');
     btn.disabled = false;
-    btn.textContent = t('quiz.start');
+    btn.textContent = 'Start Quiz';
     return;
   }
 
@@ -80,7 +80,7 @@ async function startQuiz() {
   startTimer();
 
   btn.disabled = false;
-  btn.textContent = t('quiz.start');
+  btn.textContent = 'Start Quiz';
 }
 
 function renderQuizQuestions() {
@@ -119,7 +119,7 @@ function updateQuizProgress() {
   const total = quizQuestions.length;
 
   document.getElementById('quiz-progress-label').textContent =
-    `${t('quiz.answered')}: ${answered} ${t('quiz.of')} ${total} ${t('quiz.questions')}`;
+    `${'Answered'}: ${answered} ${'/'} ${total} ${'questions'}`;
 }
 
 function startTimer() {
@@ -131,7 +131,7 @@ function startTimer() {
     if (quizTimeLeft <= 0) {
       clearInterval(quizTimerInterval);
 
-      showToast(t('toast.timeUp'), 'warning');
+      showToast('Time\'s up! Quiz auto-submitted.', 'warning');
       submitQuiz(true);
     }
   }, 1000);
@@ -155,15 +155,15 @@ function confirmSubmitQuiz() {
       <div class="modal-overlay" id="submit-confirm-overlay">
         <div class="modal-box" style="max-width:380px;">
           <div class="modal-header">
-            <h3>${t('quiz.submit')}</h3>
+            <h3>${'Submit Quiz'}</h3>
             <button class="modal-close" id="close-submit-confirm">&times;</button>
           </div>
           <div class="modal-body">
-            ${t('quiz.answered')}: <strong>${answered}/${total}</strong> ${t('quiz.questions')}.
+            ${'Answered'}: <strong>${answered}/${total}</strong> ${'questions'}.
           </div>
           <div class="modal-footer">
-            <button class="btn btn-outline" id="cancel-submit-btn">${t('quiz.start')}</button>
-            <button class="btn btn-danger"  id="confirm-submit-btn">${t('quiz.submit')}</button>
+            <button class="btn btn-outline" id="cancel-submit-btn">${'Start Quiz'}</button>
+            <button class="btn btn-danger"  id="confirm-submit-btn">${'Submit Quiz'}</button>
           </div>
         </div>
       </div>`;
@@ -192,7 +192,7 @@ async function submitQuiz(autoSubmit = false) {
     showQuizResult(result);
   } catch (err) {
 
-    showToast(`${t('toast.submitFail')}: ${err.message}`, 'error');
+    showToast(`${'Submission failed'}: ${err.message}`, 'error');
   }
 }
 
@@ -202,8 +202,8 @@ function showQuizResult(result) {
   document.getElementById('quiz-result-score').textContent = `${result.score.toFixed(1)} / 10`;
   
   document.getElementById('quiz-result-detail').innerHTML =
-    `${t('th.correct')} <strong>${result.correct}</strong> / ${result.total} ${t('quiz.questions')}
-     &nbsp;·&nbsp; ${t('th.duration')}: ${fmtDuration(result.time_spent)}`;
+    `${'Correct'} <strong>${result.correct}</strong> / ${result.total} ${'questions'}
+     &nbsp;·&nbsp; ${'Duration'}: ${fmtDuration(result.time_spent)}`;
 }
 
 function resetQuizToSetup() {
@@ -216,15 +216,6 @@ function resetQuizToSetup() {
   document.getElementById('quiz-questions-list').innerHTML = '';
 }
 
-// NEW: Listen for the langChange event to re-render the quiz if it's in progress.
-// Reason: The progress label and result details are dynamically generated text,
-// so data-i18n does not apply.
-document.addEventListener('langChange', () => {
-// If the quiz is in progress → update the progress label
-  if (document.getElementById('quiz-in-progress').style.display !== 'none') {
-    updateQuizProgress();
-  }
-});
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ADMIN – QUESTION BANK
@@ -242,17 +233,17 @@ async function loadQuestions() {
       grade: qGrade || null,
     });
     if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;">${t('toast.noQuestions')}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;">${'No matching questions found'}</td></tr>`;
     } else {
       tbody.innerHTML = data.map(q => `
         <tr data-qid="${q.id}">
           <td class="mono">${escapeQ(q.code)}</td>
           <td>${q.grade}</td>
           <td>${escapeQ(q.topic)}</td>
-          <td>${escapeQ(translateValue('level', q.level))}</td>
+          <td>${escapeQ(q.level)}</td>
           <td style="max-width:320px; white-space:normal;">${escapeQ(q.content)}</td>
           <td><strong>${escapeQ(q.answer)}</strong></td>
-          <td><button class="btn btn-danger btn-sm del-q-btn">${t('btn.delete')}</button></td>
+          <td><button class="btn btn-danger btn-sm del-q-btn">${'Delete'}</button></td>
         </tr>`).join('');
       tbody.querySelectorAll('.del-q-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -263,7 +254,7 @@ async function loadQuestions() {
     }
 
     document.getElementById('q-pagination-info').textContent =
-      `${t('page.info')} ${qPage + 1} — ${data.length} ${t('page.results')}`;
+      `${'Page'} ${qPage + 1} — ${data.length} ${'results'}`;
     document.getElementById('q-prev-btn').disabled = qPage === 0;
     document.getElementById('q-next-btn').disabled = data.length < Q_PAGE_SIZE;
   } catch (err) {
@@ -278,13 +269,13 @@ function confirmDeleteQuestion(id) {
     <div class="modal-overlay" id="del-q-overlay">
       <div class="modal-box" style="max-width:380px;">
         <div class="modal-header">
-          <h3>${t('btn.delete')} ${t('th.content').toLowerCase()}</h3>
+          <h3>${'Delete'} ${'Question'.toLowerCase()}</h3>
           <button class="modal-close" id="close-del-q">&times;</button>
         </div>
-        <div class="modal-body">${t('btn.confirm')}?</div>
+        <div class="modal-body">${'Confirm'}?</div>
         <div class="modal-footer">
-          <button class="btn btn-outline" id="cancel-del-q">${t('btn.cancel')}</button>
-          <button class="btn btn-danger"  id="confirm-del-q">${t('btn.delete')}</button>
+          <button class="btn btn-outline" id="cancel-del-q">${'Cancel'}</button>
+          <button class="btn btn-danger"  id="confirm-del-q">${'Delete'}</button>
         </div>
       </div>
     </div>`;
@@ -294,7 +285,7 @@ function confirmDeleteQuestion(id) {
   document.getElementById('confirm-del-q').addEventListener('click', async () => {
     try {
       await api.deleteQuestion(id);
-      showToast(t('toast.deleteOk'), 'success');
+      showToast('Deleted', 'success');
       close();
       loadQuestions();
     } catch (err) {
@@ -332,7 +323,7 @@ document.getElementById('download-q-template-btn').addEventListener('click', asy
   try {
     const blob = await api.downloadQuestionTemplate();
     downloadBlob(blob, 'mau-cau-hoi-trac-nghiem.xlsx');
-    showToast(t('toast.saveOk'), 'success');
+    showToast('Saved successfully', 'success');
   } catch (err) {
     showToast(err.message, 'error');
   } finally { btn.disabled = false; }
@@ -351,13 +342,13 @@ document.getElementById('import-q-input').addEventListener('change', async (e) =
   btn.innerHTML = `<span class="spinner"></span> ...`;
   try {
     const res = await api.importQuestions(file, false);
-    showToast(`${t('toast.importOk')}: +${res.added}`, 'success');
+    showToast(`${'Import successful'}: +${res.added}`, 'success');
     loadQuestions();
   } catch (err) {
     showImportQErrors(err);
   } finally {
     btn.disabled = false;
-    btn.textContent = t('qbank.import');
+    btn.textContent = '⬆ Import Questions';
   }
 });
 
@@ -373,7 +364,7 @@ function showImportQErrors(err) {
     <div class="modal-overlay" id="import-q-error-overlay">
       <div class="modal-box" style="max-width:560px;">
         <div class="modal-header">
-          <h3>${t('toast.importFail')}</h3>
+          <h3>${'Import failed'}</h3>
           <button class="modal-close" id="close-q-err">&times;</button>
         </div>
         <div class="modal-body">
@@ -386,7 +377,7 @@ function showImportQErrors(err) {
             </div>` : ''}
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" id="close-q-err-2">${t('btn.close')}</button>
+          <button class="btn btn-primary" id="close-q-err-2">${'Close'}</button>
         </div>
       </div>
     </div>`;
@@ -398,16 +389,6 @@ function showImportQErrors(err) {
   });
 }
 
-document.addEventListener('langChange', () => {
-  const qTbody = document.getElementById('questions-tbody');
-  if (qTbody && document.getElementById('view-questions').style.display !== 'none') {
-    loadQuestions();
-  }
-  const rTbody = document.getElementById('results-tbody');
-  if (rTbody && document.getElementById('view-results').style.display !== 'none') {
-    loadResults();
-  }
-});
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ADMIN – RESULTS

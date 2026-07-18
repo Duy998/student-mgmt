@@ -18,6 +18,7 @@ export class RegisterPage extends BasePage {
   private readonly passwordInput = this.page.getByRole('textbox', {name: 'Password'});
   private readonly submitButton = this.page.getByRole('button', { name: 'Register' });
 
+
   constructor(page: Page) {
     super(page);
   }

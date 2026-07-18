@@ -20,24 +20,24 @@
     <nav class="sidebar-nav">
       <button class="nav-item active" data-view="students">
         <span class="icon">📋</span>
-        <span data-i18n="nav.students">Student List</span>
+        <span>Student List</span>
       </button>
       <button class="nav-item" data-view="quiz" id="quiz-nav-item">
         <span class="icon">📝</span>
-        <span data-i18n="nav.quiz">Take Quiz</span>
+        <span>Take Quiz</span>
       </button>
-      <div class="nav-section-label" id="admin-section" style="display:none" data-i18n="nav.admin">Administration</div>
+      <div class="nav-section-label" id="admin-section" style="display:none">Administration</div>
       <button class="nav-item" data-view="users" id="users-nav-item" style="display:none">
         <span class="icon">👤</span>
-        <span data-i18n="nav.users">User Management</span>
+        <span>User Management</span>
       </button>
       <button class="nav-item" data-view="questions" id="questions-nav-item" style="display:none">
         <span class="icon">❓</span>
-        <span data-i18n="nav.questions">Question Bank</span>
+        <span>Question Bank</span>
       </button>
       <button class="nav-item" data-view="results" id="results-nav-item" style="display:none">
         <span class="icon">📊</span>
-        <span data-i18n="nav.results">Quiz Results</span>
+        <span>Quiz Results</span>
       </button>
     </nav>
 
@@ -49,7 +49,7 @@
           <div class="urole" id="user-role">—</div>
         </div>
       </div>
-      <button class="logout-btn" id="logout-btn" data-i18n="btn.logout">Logout</button>
+      <button class="logout-btn" id="logout-btn">Logout</button>
     </div>
   </aside>
 
@@ -57,31 +57,30 @@
     <button id="sidebar-toggle">☰</button>
     <strong>Student Management</strong>
   </div>
-  <button id="lang-toggle-btn" class="lang-toggle-btn" onclick="toggleLang()">EN</button>
   <main class="main-content">
 
     <!-- ── Students View ─────────────────────────────────────── -->
     <section id="view-students">
       <div class="page-header">
-        <h1 data-i18n="students.title">Student List</h1>
-        <p data-i18n="students.subtitle">Manage student information and track academic performance</p>
+        <h1>Student List</h1>
+        <p>Manage student information and track academic performance</p>
       </div>
 
       <div class="stats-grid" id="stats-grid">
         <div class="card stat-card">
-          <div class="stat-label" data-i18n="stat.total">Total Students</div>
+          <div class="stat-label">Total Students</div>
           <div class="stat-value" id="stat-total">—</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label" data-i18n="stat.active">Active</div>
+          <div class="stat-label">Active</div>
           <div class="stat-value success" id="stat-active">—</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label" data-i18n="stat.inactive">Inactive</div>
+          <div class="stat-label">Inactive</div>
           <div class="stat-value warning" id="stat-inactive">—</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label" data-i18n="stat.gpa">Average GPA</div>
+          <div class="stat-label">Average GPA</div>
           <div class="stat-value" id="stat-gpa">—</div>
         </div>
       </div>
@@ -89,22 +88,21 @@
       <div class="toolbar">
         <div class="toolbar-left">
           <input type="text" id="search-input"
-            placeholder="Search by name, ID, email, class..."
-            data-i18n-placeholder="students.search">
+            placeholder="Search by name, ID, email, class...">
           <select id="status-filter">
-            <option value="" data-i18n="filter.allStatus">All Statuses</option>
-            <option value="active" data-i18n="status.active">Active</option>
-            <option value="inactive" data-i18n="status.inactive">Inactive</option>
-            <option value="graduated" data-i18n="status.graduated">Graduated</option>
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="graduated">Graduated</option>
           </select>
         </div>
         <div class="toolbar-right">
-          <button class="btn btn-outline btn-sm" id="download-template-btn" data-i18n="students.template">⬇ Excel Template</button>
-          <button class="btn btn-outline btn-sm" id="import-excel-btn" data-i18n="students.import">⬆ Import Excel</button>
+          <button class="btn btn-outline btn-sm" id="download-template-btn">⬇ Excel Template</button>
+          <button class="btn btn-outline btn-sm" id="import-excel-btn">⬆ Import Excel</button>
           <input type="file" id="import-excel-input" accept=".xlsx,.xls" style="display:none">
-          <button class="btn btn-outline btn-sm" id="export-excel-btn" data-i18n="students.exportXls">⬇ Excel</button>
-          <button class="btn btn-outline btn-sm" id="export-pdf-btn" data-i18n="students.exportPdf">⬇ PDF</button>
-          <button class="btn btn-primary" id="add-student-btn" data-i18n="students.add">+ Add Student</button>
+          <button class="btn btn-outline btn-sm" id="export-excel-btn">⬇ Excel</button>
+          <button class="btn btn-outline btn-sm" id="export-pdf-btn">⬇ PDF</button>
+          <button class="btn btn-primary" id="add-student-btn">+ Add Student</button>
         </div>
       </div>
 
@@ -113,13 +111,13 @@
           <table>
             <thead>
               <tr>
-                <th data-i18n="th.code">Student ID</th>
-                <th data-i18n="th.name">Full Name</th>
-                <th data-i18n="th.dob">Date of Birth</th>
-                <th data-i18n="th.gender">Gender</th>
-                <th data-i18n="th.class">Class</th>
-                <th data-i18n="th.gpa">GPA</th>
-                <th data-i18n="th.status">Status</th>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>Date of Birth</th>
+                <th>Gender</th>
+                <th>Class</th>
+                <th>GPA</th>
+                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -131,8 +129,8 @@
         <div class="pagination">
           <span id="pagination-info">—</span>
           <div class="controls">
-            <button class="btn btn-outline btn-sm" id="prev-page-btn" data-i18n="btn.prev">← Previous</button>
-            <button class="btn btn-outline btn-sm" id="next-page-btn" data-i18n="btn.next">Next →</button>
+            <button class="btn btn-outline btn-sm" id="prev-page-btn">← Previous</button>
+            <button class="btn btn-outline btn-sm" id="next-page-btn">Next →</button>
           </div>
         </div>
       </div>
@@ -141,8 +139,8 @@
     <!-- ── Users View (Admin only) ───────────────────────────── -->
     <section id="view-users" style="display:none">
       <div class="page-header">
-        <h1 data-i18n="users.title">User Management</h1>
-        <p data-i18n="users.subtitle">Manage user accounts and system access permissions</p>
+        <h1>User Management</h1>
+        <p>Manage user accounts and system access permissions</p>
       </div>
 
       <div class="card">
@@ -150,11 +148,11 @@
           <table>
             <thead>
               <tr>
-                <th data-i18n="th.username">Username</th>
-                <th data-i18n="th.fullname">Full Name</th>
-                <th data-i18n="th.email">Email</th>
-                <th data-i18n="th.role">Role</th>
-                <th data-i18n="th.status">Status</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -170,15 +168,15 @@
     <!-- ── Quiz View (Student) ──────────────────────────────── -->
     <section id="view-quiz" style="display:none">
       <div class="page-header">
-        <h1 data-i18n="quiz.title">Multiple Choice Quiz</h1>
-        <p data-i18n="quiz.subtitle">Select filters and start the quiz</p>
+        <h1>Multiple Choice Quiz</h1>
+        <p>Select filters and start the quiz</p>
       </div>
       <div id="quiz-setup-panel" class="card" style="max-width:480px; margin:0 auto;">
         <div style="display:flex; flex-direction:column; gap:16px; padding:8px 0;">
           <div class="field">
-            <label data-i18n="quiz.grade">Grade (empty = all)</label>
+            <label>Grade (empty = all)</label>
             <select id="quiz-grade-select">
-              <option value="" data-i18n="filter.allGrade">All Grades</option>
+              <option value="">All Grades</option>
               <option value="6">Grade 6</option>
               <option value="7">Grade 7</option>
               <option value="8">Grade 8</option>
@@ -186,14 +184,14 @@
             </select>
           </div>
           <div class="field">
-            <label data-i18n="quiz.count">Number of Questions</label>
+            <label>Number of Questions</label>
             <input type="number" id="quiz-count-input" value="10" min="1" max="50">
           </div>
           <div class="field">
-            <label data-i18n="quiz.time">Quiz Duration (minutes)</label>
+            <label>Quiz Duration (minutes)</label>
             <input type="number" id="quiz-time-input" value="15" min="1" max="120">
           </div>
-          <button class="btn btn-primary" id="start-quiz-btn" data-i18n="quiz.start">Start Quiz</button>
+          <button class="btn btn-primary" id="start-quiz-btn">Start Quiz</button>
         </div>
       </div>
 
@@ -201,7 +199,7 @@
         <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 20px;">
           <span id="quiz-progress-label"></span>
           <span id="quiz-timer" style="font-size:1.3rem; font-weight:700; color:var(--danger,#e53e3e);">15:00</span>
-          <button class="btn btn-danger btn-sm" id="submit-quiz-btn" data-i18n="quiz.submit">Submit Quiz</button>
+          <button class="btn btn-danger btn-sm" id="submit-quiz-btn">Submit Quiz</button>
         </div>
         <div id="quiz-questions-list"></div>
       </div>
@@ -209,10 +207,10 @@
       <div id="quiz-result-panel" style="display:none;">
         <div class="card" style="max-width:400px; margin:40px auto; text-align:center; padding:40px 20px;">
           <div style="font-size:3rem; margin-bottom:12px;">🎉</div>
-          <h2 data-i18n="quiz.result.title" style="margin-bottom:8px;">Your Result</h2>
+          <h2 style="margin-bottom:8px;">Your Result</h2>
           <div id="quiz-result-score" style="font-size:2.5rem; font-weight:800; margin:12px 0;"></div>
           <div id="quiz-result-detail" style="color:var(--text-muted,#666); margin-bottom:24px;"></div>
-          <button class="btn btn-primary" id="retry-quiz-btn" data-i18n="quiz.retry">Try Another Quiz</button>
+          <button class="btn btn-primary" id="retry-quiz-btn">Try Another Quiz</button>
         </div>
       </div>
     </section>
@@ -220,23 +218,22 @@
     <!-- ── Questions View (Admin) ────────────────────────────── -->
     <section id="view-questions" style="display:none">
       <div class="page-header">
-        <h1 data-i18n="qbank.title">Question Bank</h1>
-        <p data-i18n="qbank.subtitle">Manage multiple-choice questions</p>
+        <h1>Question Bank</h1>
+        <p>Manage multiple-choice questions</p>
       </div>
       <div class="toolbar" style="margin-bottom:16px;">
         <div class="toolbar-left">
           <input type="text" id="q-search-input"
-            placeholder="Search by code, content..."
-            data-i18n-placeholder="qbank.search">
+            placeholder="Search by code, content...">
         <select id="q-grade-filter">
-          <option value="" data-i18n="filter.allGrade">All Grades</option>
+          <option value="">All Grades</option>
           <option value="6">Grade 6</option><option value="7">Grade 7</option>
           <option value="8">Grade 8</option><option value="9">Grade 9</option>
         </select>
         </div>
         <div class="toolbar-right">
-          <button class="btn btn-outline btn-sm" id="download-q-template-btn" data-i18n="qbank.template">⬇ Question Template</button>
-          <button class="btn btn-outline btn-sm" id="import-q-btn" data-i18n="qbank.import">⬆ Import Questions</button>
+          <button class="btn btn-outline btn-sm" id="download-q-template-btn">⬇ Question Template</button>
+          <button class="btn btn-outline btn-sm" id="import-q-btn">⬆ Import Questions</button>
           <input type="file" id="import-q-input" accept=".xlsx,.xls" style="display:none">
         </div>
       </div>
@@ -244,12 +241,12 @@
         <div class="table-scroll">
           <table>
             <thead><tr>
-              <th data-i18n="th.qcode">Code</th>
-              <th data-i18n="th.grade">Grade</th>
-              <th data-i18n="th.topic">Topic</th>
-              <th data-i18n="th.level">Level</th>
-              <th data-i18n="th.content" style="min-width:280px;">Question</th>
-              <th data-i18n="th.answer">Answer</th>
+              <th>Code</th>
+              <th>Grade</th>
+              <th>Topic</th>
+              <th>Level</th>
+              <th style="min-width:280px;">Question</th>
+              <th>Answer</th>
               <th></th>
             </tr></thead>
             <tbody id="questions-tbody">
@@ -260,8 +257,8 @@
         <div class="pagination">
           <span id="q-pagination-info">—</span>
           <div class="controls">
-            <button class="btn btn-outline btn-sm" id="q-prev-btn" data-i18n="btn.prev">← Previous</button>
-            <button class="btn btn-outline btn-sm" id="q-next-btn" data-i18n="btn.next">Next →</button>
+            <button class="btn btn-outline btn-sm" id="q-prev-btn">← Previous</button>
+            <button class="btn btn-outline btn-sm" id="q-next-btn">Next →</button>
           </div>
         </div>
       </div>
@@ -270,26 +267,25 @@
     <!-- ── Results View (Admin) ──────────────────────────────── -->
     <section id="view-results" style="display:none">
       <div class="page-header">
-        <h1 data-i18n="results.title">Exam Results</h1>
-        <p data-i18n="results.subtitle">View scores of all students</p>
+        <h1>Exam Results</h1>
+        <p>View scores of all students</p>
       </div>
       <div class="toolbar" style="margin-bottom:16px;">
         <div class="toolbar-left">
           <input type="text" id="result-search-input"
-            placeholder="Search by Username..."
-            data-i18n-placeholder="results.search">
+            placeholder="Search by Username...">
         </div>
       </div>
       <div class="card">
         <div class="table-scroll">
           <table>
             <thead><tr>
-              <th data-i18n="th.username">Username</th>
-              <th data-i18n="th.score">Score</th>
-              <th data-i18n="th.correct">Correct</th>
-              <th data-i18n="th.total">Total Questions</th>
-              <th data-i18n="th.duration">Duration</th>
-              <th data-i18n="th.submittedAt">Submitted At</th>
+              <th>Username</th>
+              <th>Score</th>
+              <th>Correct</th>
+              <th>Total Questions</th>
+              <th>Duration</th>
+              <th>Submitted At</th>
             </tr></thead>
             <tbody id="results-tbody">
               <tr><td colspan="6" class="text-muted" style="text-align:center;padding:30px;">Loading...</td></tr>
@@ -304,8 +300,6 @@
 
 <div id="toast-container"></div>
 <div id="modal-root"></div>
-
-<script src="js/i18n.js"></script>
 <script src="js/config.js"></script>
 <script src="js/toast.js"></script>
 <script src="js/students.js"></script>

@@ -4,12 +4,7 @@ let currentSearch = '';
 let currentStatusFilter = '';
 let editingStudentId = null;
 
-// CHANGE: Remove the hardcoded Vietnamese statusLabels object.
-// Before: statusLabels = { active: { text: 'Active', cls: '...' } }
-// After: Use translateValue('status', value) from i18n.js.
-// Reason: When the language changes, the old object still keeps the previous text,
 // so it cannot be translated.
-// translateValue() reads from DICT using the current language at runtime,
 // ensuring the displayed text is always correct.
 const statusCls = {
   active    : 'badge-active',
@@ -53,7 +48,7 @@ async function loadStudents() {
     }
 
     document.getElementById('pagination-info').textContent =
-      `${t('page.info')} ${currentPage + 1} — ${students.length} ${t('page.results')}`;
+      `${'Page'} ${currentPage + 1} — ${students.length} ${'results'}`;
     document.getElementById('prev-page-btn').disabled = currentPage === 0;
     document.getElementById('next-page-btn').disabled = students.length < PAGE_SIZE;
 
@@ -63,9 +58,9 @@ async function loadStudents() {
 }
 
 function renderStudentRow(s) {
-  const statusText = translateValue('status', s.status);
+  const statusText = ({ active:'Active', inactive:'On Leave', graduated:'Graduated' }[s.status] || s.status);
   const statusClass = statusCls[s.status] || '';
-  const genderText = translateValue('gender', s.gender);
+  const genderText = s.gender;
 
   return `
     <tr data-id="${s.id}">
@@ -78,9 +73,9 @@ function renderStudentRow(s) {
       <td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td>
       <td>
         <div class="flex gap-8">
-          <button class="btn btn-outline btn-sm edit-btn">${t('btn.edit')}</button>
+          <button class="btn btn-outline btn-sm edit-btn">${'Edit'}</button>
           ${currentUser.is_admin
-            ? `<button class="btn btn-danger btn-sm delete-btn">${t('btn.delete')}</button>`
+            ? `<button class="btn btn-danger btn-sm delete-btn">${'Delete'}</button>`
             : ''}
         </div>
       </td>
@@ -146,7 +141,7 @@ document.getElementById('add-student-btn').addEventListener('click', () => openS
 async function openStudentModal(studentId) {
   editingStudentId = studentId;
   let student = {
-    student_code: '', full_name: '', date_of_birth: '', gender: 'Nam',
+    student_code: '', full_name: '', date_of_birth: '', gender: 'Male',
     email: '', phone: '', address: '', class_name: '', gpa: 0, status: 'active',
   };
 
@@ -159,46 +154,44 @@ async function openStudentModal(studentId) {
     }
   }
 
-  // CHANGE: Use t() for labels and modal titles.
-  // Reason: The modal is dynamically generated with innerHTML so data-i18n does not work.
-  // Use t() directly when building the HTML string.
+      // Use t() directly when building the HTML string.
   const modalRoot = document.getElementById('modal-root');
   modalRoot.innerHTML = `
     <div class="modal-overlay" id="student-modal-overlay">
       <div class="modal-box">
         <div class="modal-header">
-          <h3>${studentId ? t('btn.edit') + ' ' + t('th.name').toLowerCase() : t('students.add')}</h3>
+          <h3>${studentId ? 'Edit' + ' ' + 'Full Name'.toLowerCase() : '+ Add Student'}</h3>
           <button class="modal-close" id="close-student-modal">&times;</button>
         </div>
         <form id="student-form">
           <div class="modal-body">
             <div class="field-row">
               <div class="field">
-                <label>${t('th.code')}</label>
+                <label>${'Student ID'}</label>
                 <input type="text" id="f-student_code" value="${escapeHtml(student.student_code)}" required>
               </div>
               <div class="field">
-                <label>${t('th.name')}</label>
+                <label>${'Full Name'}</label>
                 <input type="text" id="f-full_name" value="${escapeHtml(student.full_name)}" required>
               </div>
             </div>
             <div class="field-row">
               <div class="field">
-                <label>${t('th.dob')}</label>
+                <label>${'Date of Birth'}</label>
                 <input type="date" id="f-date_of_birth" value="${student.date_of_birth || ''}" required>
               </div>
               <div class="field">
-                <label>${t('th.gender')}</label>
+                <label>${'Gender'}</label>
                 <select id="f-gender">
-                  <option value="Male"   ${student.gender === 'Male'   ? 'selected' : ''}>${t('gender.Male')}</option>
-                  <option value="Female" ${student.gender === 'Female' ? 'selected' : ''}>${t('gender.Female')}</option>
-                  <option value="Other"  ${student.gender === 'Other'  ? 'selected' : ''}>${t('gender.Other')}</option>
+                  <option value="Male"   ${student.gender === 'Male'   ? 'selected' : ''}>Male</option>
+                  <option value="Female" ${student.gender === 'Female' ? 'selected' : ''}>Female</option>
+                  <option value="Other"  ${student.gender === 'Other'  ? 'selected' : ''}>Other</option>
                 </select>
               </div>
             </div>
             <div class="field-row">
               <div class="field">
-                <label>${t('th.email')}</label>
+                <label>${'Email'}</label>
                 <input type="email" id="f-email" value="${escapeHtml(student.email)}" required>
               </div>
               <div class="field">
@@ -208,11 +201,11 @@ async function openStudentModal(studentId) {
             </div>
             <div class="field-row">
               <div class="field">
-                <label>${t('th.class')}</label>
+                <label>${'Class'}</label>
                 <input type="text" id="f-class_name" value="${escapeHtml(student.class_name || '')}">
               </div>
               <div class="field">
-                <label>${t('th.gpa')}</label>
+                <label>${'GPA'}</label>
                 <input type="number" id="f-gpa" min="0" max="10" step="0.1" value="${student.gpa ?? 0}">
               </div>
             </div>
@@ -221,17 +214,17 @@ async function openStudentModal(studentId) {
               <input type="text" id="f-address" value="${escapeHtml(student.address || '')}">
             </div>
             <div class="field">
-              <label>${t('th.status')}</label>
+              <label>${'Status'}</label>
               <select id="f-status">
-                <option value="active"    ${student.status === 'active'    ? 'selected' : ''}>${t('status.active')}</option>
-                <option value="inactive"  ${student.status === 'inactive'  ? 'selected' : ''}>${t('status.inactive')}</option>
-                <option value="graduated" ${student.status === 'graduated' ? 'selected' : ''}>${t('status.graduated')}</option>
+                <option value="active"    ${student.status === 'active'    ? 'selected' : ''}>${'Active'}</option>
+                <option value="inactive"  ${student.status === 'inactive'  ? 'selected' : ''}>${'On Leave'}</option>
+                <option value="graduated" ${student.status === 'graduated' ? 'selected' : ''}>${'Graduated'}</option>
               </select>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" id="cancel-student-btn">${t('btn.cancel')}</button>
-            <button type="submit" class="btn btn-primary" id="save-student-btn">${t('btn.save')}</button>
+            <button type="button" class="btn btn-outline" id="cancel-student-btn">${'Cancel'}</button>
+            <button type="submit" class="btn btn-primary" id="save-student-btn">${'Save'}</button>
           </div>
         </form>
       </div>
@@ -272,10 +265,10 @@ async function submitStudentForm(e) {
   try {
     if (editingStudentId) {
       await api.updateStudent(editingStudentId, payload);
-      showToast(t('toast.saveOk'), 'success');   
+      showToast('Saved successfully', 'success');   
     } else {
       await api.createStudent(payload);
-      showToast(t('toast.saveOk'), 'success');   
+      showToast('Saved successfully', 'success');   
     }
     closeStudentModal();
     loadStudents();
@@ -283,7 +276,7 @@ async function submitStudentForm(e) {
   } catch (err) {
     showToast(err.message, 'error');
     btn.disabled = false;
-    btn.textContent = t('btn.save');
+    btn.textContent = 'Save';
   }
 }
 
@@ -295,15 +288,15 @@ function confirmDeleteStudent(id) {
     <div class="modal-overlay" id="delete-modal-overlay">
       <div class="modal-box" style="max-width: 400px;">
         <div class="modal-header">
-          <h3>${t('btn.confirm')}</h3>
+          <h3>${'Confirm'}</h3>
           <button class="modal-close" id="close-delete-modal">&times;</button>
         </div>
         <div class="modal-body">
           Are you sure you want to delete this student? This action cannot be undone.
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline" id="cancel-delete-btn">${t('btn.cancel')}</button>
-          <button class="btn btn-danger"  id="confirm-delete-btn">${t('btn.delete')}</button>
+          <button class="btn btn-outline" id="cancel-delete-btn">${'Cancel'}</button>
+          <button class="btn btn-danger"  id="confirm-delete-btn">${'Delete'}</button>
         </div>
       </div>
     </div>`;
@@ -314,7 +307,7 @@ function confirmDeleteStudent(id) {
   document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
     try {
       await api.deleteStudent(id);
-      showToast(t('toast.deleteOk'), 'success');   
+      showToast('Deleted', 'success');   
       close();
       loadStudents();
       loadStatistics();
@@ -332,9 +325,9 @@ document.getElementById('export-excel-btn').addEventListener('click', async (e) 
   try {
     const blob = await api.exportExcel();
     downloadBlob(blob, `danh-sach-hoc-sinh-${new Date().toISOString().slice(0,10)}.xlsx`);
-    showToast(t('toast.saveOk'), 'success');
+    showToast('Saved successfully', 'success');
   } catch (err) {
-    showToast(`${t('toast.exportFail')}: ${err.message}`, 'error');
+    showToast(`${'Export failed'}: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
@@ -346,9 +339,9 @@ document.getElementById('export-pdf-btn').addEventListener('click', async (e) =>
   try {
     const blob = await api.exportPdf();
     downloadBlob(blob, `danh-sach-hoc-sinh-${new Date().toISOString().slice(0,10)}.pdf`);
-    showToast(t('toast.saveOk'), 'success');
+    showToast('Saved successfully', 'success');
   } catch (err) {
-    showToast(`${t('toast.exportFail')}: ${err.message}`, 'error');
+    showToast(`${'Export failed'}: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
@@ -362,7 +355,7 @@ document.getElementById('download-template-btn').addEventListener('click', async
   try {
     const blob = await api.downloadImportTemplate();
     downloadBlob(blob, 'mau-import-hoc-sinh.xlsx');
-    showToast(t('toast.saveOk'), 'success');
+    showToast('Saved successfully', 'success');
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
@@ -386,7 +379,7 @@ document.getElementById('import-excel-input').addEventListener('change', async (
 
   try {
     const imported = await api.importExcel(file);
-    showToast(`${t('toast.importOk')}: ${imported.length}`, 'success');
+    showToast(`${'Import successful'}: ${imported.length}`, 'success');
     loadStudents();
     loadStatistics();
   } catch (err) {
@@ -410,7 +403,7 @@ function showImportErrors(err) {
     <div class="modal-overlay" id="import-error-overlay">
       <div class="modal-box" style="max-width: 560px;">
         <div class="modal-header">
-          <h3>${t('toast.importFail')}</h3>
+          <h3>${'Import failed'}</h3>
           <button class="modal-close" id="close-import-error">&times;</button>
         </div>
         <div class="modal-body">
@@ -423,7 +416,7 @@ function showImportErrors(err) {
             </div>` : ''}
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" id="close-import-error-2">${t('btn.close')}</button>
+          <button class="btn btn-primary" id="close-import-error-2">${'Close'}</button>
         </div>
       </div>
     </div>`;

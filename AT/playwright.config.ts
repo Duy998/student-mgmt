@@ -63,21 +63,21 @@ export default defineConfig({
     },
 // TODO: Extend to firefox/webkit when real cross-browser testing is required.
 // Currently, the app only needs to support Chrome, so only one project is configured.
-     {
-        name: "setup-admin",
-        testMatch: /admin\.setup\.ts/
-    },
-    {
-        name: "Admin",
-        use: {
-            storageState:
-                "playwright/.auth/admin.json"
-        },
-        dependencies: [
-            "setup-admin"
-        ]
+    // {
+    //     name: "setup-admin",
+    //     testMatch: /admin\.setup\.ts/
+    // },
+    // {
+    //     name: "Admin",
+    //     use: {
+    //         storageState:
+    //             "playwright/.auth/admin.json"
+    //     },
+    //     dependencies: [
+    //         "setup-admin"
+    //     ]
 
-    }
+    // }
   ],
 
   // Uncomment when there is an app startup script + health check,

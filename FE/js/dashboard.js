@@ -2,20 +2,12 @@ if (!requireAuth()) { /* redirected */ }
 
 const currentUser = storage.getUser();
 
-
-function renderUserRole() {
-  const key = currentUser.is_admin ? 'role.admin' : 'role.user';
-  document.getElementById('user-role').textContent = t(key);
-}
-
 function initShell() {
   if (!currentUser) return;
 
   document.getElementById('user-name').textContent = currentUser.full_name;
+  document.getElementById('user-role').textContent = currentUser.is_admin ? 'Administrator' : 'User';
   document.getElementById('user-avatar').textContent = currentUser.full_name.charAt(0).toUpperCase();
-
-
-  renderUserRole();
 
   if (currentUser.is_admin) {
     document.getElementById('admin-section').style.display = 'block';
@@ -29,19 +21,14 @@ function initShell() {
     window.location.href = 'login.html';
   });
 
-  // Nav switching
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', () => switchView(item.dataset.view));
   });
 
-  // Mobile sidebar toggle
   const sidebar = document.getElementById('sidebar');
   document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
     sidebar.classList.toggle('open');
   });
-
-
-  applyLang();
 }
 
 function switchView(view) {
@@ -60,13 +47,6 @@ function switchView(view) {
   if (view === 'questions' && currentUser.is_admin) { loadQuestions(); }
   if (view === 'results' && currentUser.is_admin)   { loadResults(); }
 }
-
-
-document.addEventListener('langChange', () => {
-  renderUserRole();   
-  loadStudents();     
-  loadStatistics();   
-});
 
 initShell();
 loadStudents();
