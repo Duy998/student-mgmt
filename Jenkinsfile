@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Deploy Hook URL (sẽ thêm sau)
-        RENDER_DEPLOY_HOOK = credentials('render-deploy-hook')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -24,27 +19,18 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo '🧪 Running tests...'
-                // Nếu dùng pytest
-                sh 'docker run --rm student-mgmt:${BUILD_NUMBER} pytest'
-                // Nếu dùng unittest:
-                // sh 'docker run --rm student-mgmt:${BUILD_NUMBER} python -m unittest discover tests'
-            }
-        }
-
-        stage('Deploy to Render') {
-            steps {
-                echo '🚀 Deploying to Render...'
-                sh "curl -X POST ${RENDER_DEPLOY_HOOK}"
+                sh 'docker run --rm student-mgmt:${BUILD_NUMBER} npm test'
+                // Hoặc Python: sh 'docker run --rm student-mgmt:${BUILD_NUMBER} pytest'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline completed successfully!'
+            echo '✅ Build and tests passed!'
         }
         failure {
-            echo '❌ Pipeline failed! Check the logs.'
+            echo '❌ Build or tests failed!'
         }
     }
 }
