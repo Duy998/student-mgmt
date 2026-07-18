@@ -32,7 +32,7 @@ pipeline {
                 echo DATABASE_URL=%DATABASE_URL%
                 echo SECRET_KEY=%SECRET_KEY%
                 echo ACCESS_TOKEN_EXPIRE_MINUTES=%ACCESS_TOKEN_EXPIRE_MINUTES%
-                echo API_SECRET_KEY=%API_SECRET%
+                echo API_SECRET_KEY=%API_SECRET_KEY%
                 echo ALLOWED_ORIGINS=%ALLOWED_ORIGINS%
                 )>.env
                 '''
@@ -77,43 +77,37 @@ pipeline {
 
     post {
 
-        always {
+    always {
 
-            junit allowEmptyResults: true,
-                  testResults: 'AT/test-results/results.xml'
+        publishHTML(target: [
+            allowMissing: true,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'AT/playwright-report',
+            reportFiles: 'index.html',
+            reportName: 'Playwright Report'
+        ])
 
-            publishHTML(target: [
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'AT/playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright Report'
-            ])
-
-            archiveArtifacts artifacts: '''
+        archiveArtifacts artifacts: '''
 AT/playwright-report/**
-AT/test-results/**
 AT/test-results/**/*.png
 AT/test-results/**/*.webm
 AT/test-results/**/*.zip
 ''',
-            fingerprint: true
+        fingerprint: true
 
-            bat 'docker-compose down -v'
+        bat 'docker-compose down -v'
 
-            bat 'del .env'
-
-        }
-
-        success {
-            echo 'Pipeline SUCCESS'
-        }
-
-        failure {
-            echo 'Pipeline FAILED'
-        }
-
+        bat 'if exist .env del .env'
     }
+
+    success {
+        echo 'Pipeline SUCCESS'
+    }
+
+    failure {
+        echo 'Pipeline FAILED'
+    }
+}
 
 }
