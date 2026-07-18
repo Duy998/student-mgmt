@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        // Đường dẫn tuyệt đối để tránh lỗi
+        WORKSPACE = pwd()
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -9,47 +14,56 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies & Run Playwright Tests') {
-            steps {
-                echo '🧪 Running Playwright tests...'
-                script {
-                    // Di chuyển vào thư mục AT
-                    dir('AT') {
-                        // Cài dependencies (dùng bat thay vì sh)
-                        bat 'npm install'
-                        // Chạy test
-                        bat 'npm test'
-                    }
-                }
-            }
-        }
-
-        stage('Build with Docker Compose') {
+        stage('Build Docker Images') {
             steps {
                 echo '🐳 Building Docker images...'
-                // Dùng bat cho Windows
                 bat 'docker-compose build'
             }
         }
 
         stage('Start Services') {
             steps {
-                echo '🚀 Starting services...'
+                echo '🚀 Starting all services...'
                 bat 'docker-compose up -d'
+                echo '⏳ Waiting for services to be ready...'
                 // Đợi services khởi động
-                sleep time: 15, unit: 'SECONDS'
+                sleep time: 30, unit: 'SECONDS'
             }
         }
 
-        stage('Verify Services') {
+        stage('Verify Services Running') {
             steps {
                 echo '🏥 Checking if services are running...'
                 script {
-                    // Kiểm tra containers đang chạy
                     bat 'docker ps | findstr student-db'
                     bat 'docker ps | findstr student-be'
                     bat 'docker ps | findstr student-fe'
                     echo '✅ All services are running!'
+                }
+            }
+        }
+
+        stage('Install Playwright & Run Tests') {
+            steps {
+                echo '🧪 Setting up and running Playwright tests...'
+                script {
+                    dir('AT') {
+                        // 1. Cài dependencies
+                        bat 'npm install'
+                        // 2. Cài browsers cho Playwright
+                        bat 'npx playwright install'
+                        // 3. Chạy test (backend và frontend đã chạy)
+                        bat 'npm test'
+                    }
+                }
+            }
+        }
+
+        stage('Generate Test Report') {
+            steps {
+                echo '📊 Generating test report...'
+                dir('AT') {
+                    bat 'npx playwright show-report || echo "Report generation skipped"'
                 }
             }
         }
@@ -58,10 +72,10 @@ pipeline {
     post {
         always {
             echo '🧹 Cleaning up...'
-            bat 'docker-compose down || exit 0'
+            bat 'docker-compose down -v || exit 0'
         }
         success {
-            echo '✅ All tests passed and services built successfully!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
             echo '❌ Pipeline failed! Check the logs.'
