@@ -2,9 +2,7 @@ if (!requireAuth()) { /* redirected */ }
 
 const currentUser = storage.getUser();
 
-// ── Hàm tách riêng để set user-role text ──────────────────────────────────
-// Lý do tách: cần gọi lại khi đổi ngôn ngữ (langChange event)
-// Nếu để inline trong initShell() thì không gọi lại được
+
 function renderUserRole() {
   const key = currentUser.is_admin ? 'role.admin' : 'role.user';
   document.getElementById('user-role').textContent = t(key);
@@ -16,8 +14,7 @@ function initShell() {
   document.getElementById('user-name').textContent = currentUser.full_name;
   document.getElementById('user-avatar').textContent = currentUser.full_name.charAt(0).toUpperCase();
 
-  // Dùng renderUserRole() thay vì hardcode string
-  // để khi đổi ngôn ngữ có thể gọi lại dễ dàng
+
   renderUserRole();
 
   if (currentUser.is_admin) {
@@ -43,8 +40,7 @@ function initShell() {
     sidebar.classList.toggle('open');
   });
 
-  // THÊM MỚI: Áp ngôn ngữ mặc định (VI) lên toàn bộ [data-i18n] trong DOM
-  // Gọi sau khi tất cả setup xong để đảm bảo DOM đã sẵn sàng
+
   applyLang();
 }
 
@@ -65,15 +61,11 @@ function switchView(view) {
   if (view === 'results' && currentUser.is_admin)   { loadResults(); }
 }
 
-// THÊM MỚI: Lắng nghe event langChange từ i18n.js
-// Khi user click nút EN/VI, i18n.js dispatch event này
-// dashboard.js cần:
-//   1. Cập nhật lại user-role (giá trị động, không có data-i18n)
-//   2. Re-render bảng students (vì gender/status trong table là text động)
+
 document.addEventListener('langChange', () => {
-  renderUserRole();   // cập nhật "Quản trị viên" ↔ "Administrator"
-  loadStudents();     // re-render table để gender/status được dịch lại
-  loadStatistics();   // re-render stat cards nếu có giá trị động
+  renderUserRole();   
+  loadStudents();     
+  loadStatistics();   
 });
 
 initShell();

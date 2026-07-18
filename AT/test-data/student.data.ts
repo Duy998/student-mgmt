@@ -3,10 +3,7 @@ import { STUDENT_FORM_DEFAULTS } from '../constants/messages';
 import { uniquePhoneVN } from '../utils/random';
 import type { StudentData } from '../pages/StudentPage';
 
-/**
- * Factory sinh dữ liệu học sinh mới, studentId luôn unique để tránh
- * đụng độ "duplicate student code" giữa các lần chạy test song song.
- */
+
 export function buildStudentData(overrides: Partial<StudentData> = {}): StudentData {
   const unique = faker.string.numeric(6);
   return {

@@ -9,7 +9,7 @@ function showAlert(msg) {
 
 function setLoading(btn, loading, label) {
   btn.disabled = loading;
-  btn.innerHTML = loading ? `<span class="spinner"></span> Đang xử lý...` : label;
+  btn.innerHTML = loading ? `<span class="spinner"></span> Loading...` : label;
 }
 
 // ── Login ─────────────────────────────────────────────────────
@@ -21,15 +21,15 @@ if (loginForm) {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
 
-    setLoading(btn, true, 'Đăng nhập');
+    setLoading(btn, true, 'Login');
     try {
       const data = await api.login(username, password);
       storage.setToken(data.access_token);
       storage.setUser(data.user);
       window.location.href = 'dashboard.html';
     } catch (err) {
-      showAlert(err.message || 'Đăng nhập thất bại');
-      setLoading(btn, false, 'Đăng nhập');
+      showAlert(err.message || 'Login failed');
+      setLoading(btn, false, 'Login');
     }
   });
 }
@@ -48,14 +48,14 @@ if (registerForm) {
       password: document.getElementById('password').value,
     };
 
-    setLoading(btn, true, 'Đăng ký');
+    setLoading(btn, true, 'Registration');
     try {
       await api.register(payload);
-      showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+      showToast('Registration successful! Please Login.', 'success');
       setTimeout(() => { window.location.href = 'login.html'; }, 1200);
     } catch (err) {
-      showAlert(err.message || 'Đăng ký thất bại');
-      setLoading(btn, false, 'Đăng ký');
+      showAlert(err.message || 'Registration failed');
+      setLoading(btn, false, 'Registration');
     }
   });
 }

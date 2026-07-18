@@ -10,12 +10,12 @@ async function globalSetup() {
 
   const page = await browser.newPage();
 
-  // Kiểm tra Frontend
+
   await page.goto(ENV.ui.baseUrl);
 
   console.log('Frontend is running');
 
-  // Có thể login sẵn
+
 
   /*
   await page.fill('#username', ENV.admin.username);

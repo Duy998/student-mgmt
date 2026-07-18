@@ -238,7 +238,7 @@
 .table-scroll { overflow-x: auto; }
 
 /* ── Language toggle button ─────────────────────────────────────────────── */
-/* Desktop: nằm cố định góc trên bên phải, trên mọi content                */
+
 .lang-toggle-btn {
   position: fixed;
   top: 16px;

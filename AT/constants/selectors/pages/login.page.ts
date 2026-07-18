@@ -1,11 +1,12 @@
 export const LOGIN_SELECTORS = {
 
-    title: 'Quản lý Học sinh',
+    title: 'Student Management',
     // Form elements
-    emailInput: '#email',
-    passwordInput: '#password',
-    loginButton: 'button[type="submit"]',
+    usernameInput: 'Username',
+    passwordInput: 'Password',
+    loginButton: '.btn-login',
     rememberMeCheckbox: '#remember-me',
+    usernameInfo: 'Student List',
     
     // Error messages
     errorMessage: '.error-message',

@@ -42,7 +42,7 @@ export default defineConfig({
     //   height: 1080,
     // },
     trace: 'on-first-retry',
-    // Chỉ giữ video/screenshot khi fail để tránh phình dung lượng artifact trên CI.
+    // Only keep videos/screenshots on failure to avoid increasing artifact size on CI.
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
@@ -61,12 +61,28 @@ export default defineConfig({
         },
       },
     },
-    // TODO: mở rộng sang firefox/webkit khi cần test cross-browser thật sự,
-    // hiện tại app chỉ được yêu cầu support Chrome nên chỉ chạy 1 project.
+// TODO: Extend to firefox/webkit when real cross-browser testing is required.
+// Currently, the app only needs to support Chrome, so only one project is configured.
+     {
+        name: "setup-admin",
+        testMatch: /admin\.setup\.ts/
+    },
+    {
+        name: "Admin",
+        use: {
+            storageState:
+                "playwright/.auth/admin.json"
+        },
+        dependencies: [
+            "setup-admin"
+        ]
+
+    }
   ],
 
-  // Bỏ comment khi có script khởi động app + health-check, để CI tự start app
-  // trước khi chạy test thay vì yêu cầu app đã chạy sẵn thủ công.
+  // Uncomment when there is an app startup script + health check,
+  // so CI can automatically start the app before running tests
+  // instead of requiring the app to be started manually beforehand.
   // webServer: {
   //   command: 'npm run start --prefix ../student-mgmt-app',
   //   url: process.env.BASE_URL ?? 'http://localhost:5500/',

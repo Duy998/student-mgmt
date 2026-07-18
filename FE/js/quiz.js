@@ -36,7 +36,7 @@ function fmtDuration(seconds) {
 
 function fmtDatetime(iso) {
   if (!iso) return '—';
-  // THAY ĐỔI: dùng getCurrentLang() để format date đúng locale
+
   const locale = getCurrentLang() === 'vi' ? 'vi-VN' : 'en-US';
   return new Date(iso).toLocaleString(locale);
 }
@@ -56,7 +56,7 @@ async function startQuiz() {
 
   const btn = document.getElementById('start-quiz-btn');
   btn.disabled = true;
-  // THAY ĐỔI: dùng t() thay vì hardcode 'Đang rút câu hỏi...'
+
   btn.innerHTML = `<span class="spinner"></span> ${t('quiz.loading')}`;
 
   try {
@@ -117,7 +117,7 @@ window.selectAnswer = function(questionId, letter) {
 function updateQuizProgress() {
   const answered = Object.keys(quizAnswers).length;
   const total = quizQuestions.length;
-  // THAY ĐỔI: dùng t() để build label "Đã trả lời: x / y câu" ↔ "Answered: x / y questions"
+
   document.getElementById('quiz-progress-label').textContent =
     `${t('quiz.answered')}: ${answered} ${t('quiz.of')} ${total} ${t('quiz.questions')}`;
 }
@@ -130,7 +130,7 @@ function startTimer() {
     updateTimerDisplay();
     if (quizTimeLeft <= 0) {
       clearInterval(quizTimerInterval);
-      // THAY ĐỔI: dùng t() thay vì hardcode 'Hết giờ!...'
+
       showToast(t('toast.timeUp'), 'warning');
       submitQuiz(true);
     }
@@ -151,7 +151,6 @@ function confirmSubmitQuiz() {
   const total = quizQuestions.length;
   if (answered < total) {
     const modalRoot = document.getElementById('modal-root');
-    // THAY ĐỔI: dùng t() cho title, body, buttons
     modalRoot.innerHTML = `
       <div class="modal-overlay" id="submit-confirm-overlay">
         <div class="modal-box" style="max-width:380px;">
@@ -192,7 +191,7 @@ async function submitQuiz(autoSubmit = false) {
     const result = await api.submitQuiz({ answers: allAnswers, time_spent: timeSpent });
     showQuizResult(result);
   } catch (err) {
-    // THAY ĐỔI: dùng t() cho toast
+
     showToast(`${t('toast.submitFail')}: ${err.message}`, 'error');
   }
 }
@@ -201,7 +200,7 @@ function showQuizResult(result) {
   document.getElementById('quiz-in-progress').style.display = 'none';
   document.getElementById('quiz-result-panel').style.display = '';
   document.getElementById('quiz-result-score').textContent = `${result.score.toFixed(1)} / 10`;
-  // THAY ĐỔI: dùng t() cho label "Đúng" và "Thời gian"
+  
   document.getElementById('quiz-result-detail').innerHTML =
     `${t('th.correct')} <strong>${result.correct}</strong> / ${result.total} ${t('quiz.questions')}
      &nbsp;·&nbsp; ${t('th.duration')}: ${fmtDuration(result.time_spent)}`;
@@ -217,10 +216,11 @@ function resetQuizToSetup() {
   document.getElementById('quiz-questions-list').innerHTML = '';
 }
 
-// THÊM MỚI: Lắng nghe langChange để re-render quiz nếu đang làm bài
-// Lý do: progress label và result detail là text động, không có data-i18n
+// NEW: Listen for the langChange event to re-render the quiz if it's in progress.
+// Reason: The progress label and result details are dynamically generated text,
+// so data-i18n does not apply.
 document.addEventListener('langChange', () => {
-  // Nếu đang làm bài → cập nhật progress label
+// If the quiz is in progress → update the progress label
   if (document.getElementById('quiz-in-progress').style.display !== 'none') {
     updateQuizProgress();
   }
@@ -233,7 +233,7 @@ document.addEventListener('langChange', () => {
 async function loadQuestions() {
   const tbody = document.getElementById('questions-tbody');
   if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;">Đang tải...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;">Loading...</td></tr>`;
   try {
     const data = await api.getQuestions({
       skip: qPage * Q_PAGE_SIZE,
@@ -261,7 +261,7 @@ async function loadQuestions() {
         });
       });
     }
-    // THAY ĐỔI: dùng t() cho pagination info
+
     document.getElementById('q-pagination-info').textContent =
       `${t('page.info')} ${qPage + 1} — ${data.length} ${t('page.results')}`;
     document.getElementById('q-prev-btn').disabled = qPage === 0;
@@ -273,7 +273,7 @@ async function loadQuestions() {
 
 function confirmDeleteQuestion(id) {
   const modalRoot = document.getElementById('modal-root');
-  // THAY ĐỔI: dùng t() cho toàn bộ modal text
+
   modalRoot.innerHTML = `
     <div class="modal-overlay" id="del-q-overlay">
       <div class="modal-box" style="max-width:380px;">
@@ -398,8 +398,6 @@ function showImportQErrors(err) {
   });
 }
 
-// THÊM MỚI: Lắng nghe langChange để re-render bảng câu hỏi
-// Lý do: cột "Mức độ" dùng translateValue('level', ...) → phải reload để dịch lại
 document.addEventListener('langChange', () => {
   const qTbody = document.getElementById('questions-tbody');
   if (qTbody && document.getElementById('view-questions').style.display !== 'none') {
@@ -418,7 +416,7 @@ document.addEventListener('langChange', () => {
 async function loadResults() {
   const tbody = document.getElementById('results-tbody');
   if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;">Đang tải...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;">Loading...</td></tr>`;
   try {
     const data = await api.getResults({ username: resultSearch || null });
     if (!data.length) {

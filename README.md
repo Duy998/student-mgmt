@@ -1,6 +1,6 @@
-# Hệ thống Quản lý Học sinh
+# Hệ thống Student Management
 
-Ứng dụng quản lý học sinh full-stack: FastAPI + PostgreSQL (backend), HTML/CSS/JS thuần (frontend), đóng gói bằng Docker.
+Ứng dụng Student Management full-stack: FastAPI + PostgreSQL (backend), HTML/CSS/JS thuần (frontend), đóng gói bằng Docker.
 
 ## Cấu trúc project
 
@@ -84,12 +84,12 @@ student-mgmt/
    - Frontend: http://localhost:8080
    - API Docs (Swagger): http://localhost:8000/api/docs
 
-8. Đăng nhập với tài khoản admin được tạo sẵn:
+8. Login với tài khoản admin được tạo sẵn:
 
    - Username: `admin`
    - Password: `Admin@123`
 
-   > **Khuyến nghị:** Đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
+   > **Khuyến nghị:** Đổi Password ngay sau lần Login đầu tiên.
 
 9. Một số lệnh Docker hữu ích:
 
@@ -146,9 +146,9 @@ Tài khoản đăng ký mới qua `/register.html` mặc định là **User** th
 | Method | Endpoint | Mô tả |
 |---|---|---|
 | POST | `/api/auth/register` | Đăng ký |
-| POST | `/api/auth/login` | Đăng nhập (trả JWT) |
+| POST | `/api/auth/login` | Login (trả JWT) |
 | GET | `/api/auth/me` | Thông tin user hiện tại |
-| PUT | `/api/auth/change-password` | Đổi mật khẩu |
+| PUT | `/api/auth/change-password` | Đổi Password |
 | GET | `/api/students/` | Danh sách học sinh (search, filter, pagination) |
 | GET | `/api/students/statistics` | Thống kê tổng quan |
 | GET | `/api/students/export/excel` | Xuất Excel |

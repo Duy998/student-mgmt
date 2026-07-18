@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đăng ký — Hệ thống Quản lý Học sinh</title>
+<title>Register — Student Management System</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/auth.css">
 </head>
@@ -12,19 +12,19 @@
   <div class="auth-card">
     <div class="auth-brand">
       <div class="mark">HS</div>
-      <h1>Tạo tài khoản</h1>
-      <p>Đăng ký để bắt đầu quản lý</p>
+      <h1>Create Account</h1>
+      <p>Register to start managing</p>
     </div>
 
     <div id="alert" class="auth-alert"></div>
 
     <form id="register-form">
       <div class="field">
-        <label for="full_name">Họ và tên</label>
+        <label for="full_name">Fullname</label>
         <input type="text" id="full_name" name="full_name" required>
       </div>
       <div class="field">
-        <label for="username">Tên đăng nhập</label>
+        <label for="username">Username</label>
         <input type="text" id="username" name="username" required minlength="3">
       </div>
       <div class="field">
@@ -32,15 +32,15 @@
         <input type="email" id="email" name="email" required>
       </div>
       <div class="field">
-        <label for="password">Mật khẩu</label>
+        <label for="password">Password</label>
         <input type="password" id="password" name="password" required minlength="6">
-        <div class="field-error" style="display:none">Mật khẩu cần ít nhất 6 ký tự</div>
+        <div class="field-error" style="display:none">Password must be at least 6 characters</div>
       </div>
-      <button type="submit" class="btn btn-primary" id="register-btn">Đăng ký</button>
+      <button type="submit" class="btn btn-primary" id="register-btn">Register</button>
     </form>
 
     <div class="auth-footer">
-      Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+      Already have an account? <a href="login.html">Login</a>
     </div>
   </div>
 

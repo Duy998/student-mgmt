@@ -40,16 +40,16 @@ async function apiRequest(path, { method = 'GET', body = null, isForm = false, i
     if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('index.html')) {
       window.location.href = 'login.html';
     }
-    throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.');
+    throw new Error('Your login session has expired; please log in again.');
   }
 
   if (!res.ok) {
-    let detail = `Lỗi ${res.status}`;
+    let detail = `Error ${res.status}`;
     try {
       const err = await res.json();
       detail = err.detail || detail;
     } catch (_) {}
-    const message = typeof detail === 'string' ? detail : (detail.message || `Lỗi ${res.status}`);
+    const message = typeof detail === 'string' ? detail : (detail.message || `Error ${res.status}`);
     const error = new Error(message);
     error.detail = detail; // keep structured detail (e.g. { message, errors: [] }) for callers that need it
     throw error;

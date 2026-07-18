@@ -4,7 +4,7 @@ export const TEXT_SUCCESS = {
     usernameAlreadyExists: 'Username already registered',
   },
   LOGIN: {
-    title: 'Quản lý Học sinh',
+    title: 'Student Management',
   },
 };
 

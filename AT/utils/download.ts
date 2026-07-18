@@ -2,13 +2,7 @@ import { Download, Locator, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-/**
- * Bấm vào locator kích hoạt tải file (nút "Xuất Excel"/"Xuất PDF") và trả về
- * đường dẫn file đã lưu trên đĩa để các bước sau đọc/verify nội dung.
- *
- * Dùng chung cho mọi test export, tránh mỗi spec tự viết lại logic
- * page.waitForEvent('download') riêng lẻ.
- */
+
 export async function downloadFileAfterClick(
   page: Page,
   trigger: Locator,
@@ -28,6 +22,6 @@ export async function downloadFileAfterClick(
 export async function assertDownloadSucceeded(download: Download) {
   const failure = await download.failure();
   if (failure) {
-    throw new Error(`Download thất bại: ${failure}`);
+    throw new Error(`Download failed: ${failure}`);
   }
 }

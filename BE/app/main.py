@@ -45,7 +45,7 @@ def _seed_admin():
             admin = User(
                 username="admin",
                 email="admin@school.local",
-                full_name="Quản trị viên",
+                full_name="Administrator",
                 hashed_password=hash_password("Admin@123"),
                 is_admin=True,
                 is_active=True,

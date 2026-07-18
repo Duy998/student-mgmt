@@ -1,8 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
-/**
- * BasePage chứa các hành vi/assert dùng chung cho mọi Page Object.
- * Mọi Page Object cụ thể nên extends class này thay vì lặp lại code.
- */
+
 export class BasePage {
   constructor(protected readonly page: Page) {}
 

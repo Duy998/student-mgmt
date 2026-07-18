@@ -1,10 +1,10 @@
 export const MESSAGE = {
   AUTH: {
-    registerSuccess: 'Đăng ký thành công! Vui lòng đăng nhập.',
+    registerSuccess: 'Registration successful! Please log in.',
     usernameAlreadyExists: 'Username already registered',
   },
   STUDENT: {
-    createSuccess: 'Thêm học sinh thành công!',
+    createSuccess: 'Student added successfully!',
   },
 };
 

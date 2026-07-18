@@ -19,9 +19,9 @@ class Settings:
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
-    # API Key — dùng cho script/Postman/tool nội bộ, thay thế JWT
-    # Nếu không set trong .env → None → tính năng bị tắt hoàn toàn (an toàn mặc định)
-    # Tạo bằng: openssl rand -hex 32
+    # API Key — used for scripts/Postman/internal tools, replacing JWT
+    # If not set in .env → None → feature is completely disabled (secure by default)
+    # Generate with: openssl rand -hex 32
     API_SECRET_KEY: str = os.getenv("API_SECRET_KEY", None)
 
     # CORS

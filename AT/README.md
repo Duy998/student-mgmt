@@ -1,28 +1,28 @@
 # AT Student Management – Automation Test Suite
 
-Playwright + TypeScript test suite cho ứng dụng Student Management.
+Playwright + TypeScript test suite for the Student Management application.
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env   # rồi điền giá trị thật vào .env (KHÔNG commit .env)
+cp .env.example .env   # Then fill in the real values in .env (DO NOT commit .env)
 npx playwright install --with-deps
 ```
 
 ## Chạy test
 
 ```bash
-npm test                 # chạy toàn bộ test (headless)
-npm run test:headed      # chạy có hiện trình duyệt
-npm run test:ui          # chạy với Playwright UI mode
+npm test                 # run all tests (headless)
+npm run test:headed      # run with browser visible
+npm run test:ui          # run with Playwright UI mode
 npm run test:auth        # tests/auth (login + register)
-npm run test:register    # chỉ tests/auth/register.spec.ts
-npm run test:login       # chỉ tests/auth/login.spec.ts
-npm run test:student     # chỉ tests/student/create-student.spec.ts
-npm run test:import      # chỉ tests/student/import-student.spec.ts
+npm run test:register    # only tests/auth/register.spec.ts
+npm run test:login       # only tests/auth/login.spec.ts
+npm run test:student     # only tests/student/create-student.spec.ts
+npm run test:import      # only tests/student/import-student.spec.ts
 npm run test:export      # tests/student/export-excel.spec.ts + export-pdf.spec.ts
-npm run report           # mở report HTML lần chạy gần nhất
+npm run report           # open the HTML report from the latest run
 ```
 
 ## Cấu trúc project

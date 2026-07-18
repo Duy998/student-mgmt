@@ -72,9 +72,9 @@ def export_excel(
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Danh sách học sinh"
+    ws.title = "Student List"
 
-    headers = ["Mã số", "Họ tên", "Ngày sinh", "Giới tính", "Email", "Điện thoại", "Lớp", "Điểm TB", "Trạng thái"]
+    headers = ["Student ID", "Full Name", "Date of Birth", "Gender", "Email", "Phone", "Class", "GPA", "Status"]
     header_fill = PatternFill(start_color="1E3A5F", end_color="1E3A5F", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF")
 
@@ -84,7 +84,7 @@ def export_excel(
         cell.font = header_font
         cell.alignment = Alignment(horizontal="center")
 
-    status_map = {"active": "Đang học", "inactive": "Tạm nghỉ", "graduated": "Đã tốt nghiệp"}
+    status_map = {"active": "Active", "inactive": "Inactive", "graduated": "Graduated"}
     for row, s in enumerate(students, 2):
         ws.append([
             s.student_code, s.full_name,
@@ -130,8 +130,8 @@ def export_pdf(
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle("title", parent=styles["Heading1"], fontSize=16, spaceAfter=10, alignment=1)
 
-    status_map = {"active": "Đang học", "inactive": "Tạm nghỉ", "graduated": "Đã tốt nghiệp"}
-    data = [["Mã số", "Họ tên", "Ngày sinh", "Giới tính", "Email", "Lớp", "Điểm TB", "Trạng thái"]]
+    status_map = {"active": "Active", "inactive": "Inactive", "graduated": "Graduated"}
+    data = [["Student ID", "Full Name", "Date of Birth", "Gender", "Email", "Class", "GPA", "Status"]]
     for s in students:
         data.append([
             s.student_code, s.full_name,
@@ -154,7 +154,7 @@ def export_pdf(
         ("PADDING", (0, 0), (-1, -1), 5),
     ]))
 
-    elements = [Paragraph("DANH SÁCH HỌC SINH", title_style), Spacer(1, 10), table]
+    elements = [Paragraph("STUDENT LIST", title_style), Spacer(1, 10), table]
     doc.build(elements)
     buf.seek(0)
     return StreamingResponse(
@@ -177,9 +177,9 @@ def download_import_template(
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Học sinh"
+    ws.title = "Student"
 
-    headers = ["Mã số", "Họ tên", "Ngày sinh (dd/mm/yyyy)", "Giới tính", "Email", "Điện thoại", "Lớp", "Điểm TB", "Trạng thái"]
+    headers = ["Student ID", "Full Name", "Date of Birth (dd/mm/yyyy)", "Gender", "Email", "Phone", "Class", "GPA", "Status"]
     header_fill = PatternFill(start_color="1E3A5F", end_color="1E3A5F", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF")
 
@@ -190,14 +190,14 @@ def download_import_template(
         cell.alignment = Alignment(horizontal="center")
 
     # One example row to guide the user
-    ws.append(["HS001", "Nguyễn Văn A", "01/09/2008", "Nam", "vana@example.com", "0901234567", "10A1", 8.5, "active"])
+    ws.append(["HS001", "Nguyen Van A", "01/09/2008", "Nam", "vana@example.com", "0901234567", "10A1", 8.5, "active"])
 
     col_widths = [12, 25, 20, 10, 30, 14, 10, 10, 15]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
     # Dropdown validation for Gender and Status to reduce input errors
-    gender_dv = DataValidation(type="list", formula1='"Nam,Nữ,Khác"', allow_blank=False)
+    gender_dv = DataValidation(type="list", formula1='"Male,Female,Other"', allow_blank=False)
     status_dv = DataValidation(type="list", formula1='"active,inactive,graduated"', allow_blank=False)
     ws.add_data_validation(gender_dv)
     ws.add_data_validation(status_dv)
@@ -226,22 +226,22 @@ async def import_excel(
         raise HTTPException(status_code=500, detail="openpyxl not installed")
 
     if not file.filename.lower().endswith((".xlsx", ".xls")):
-        raise HTTPException(status_code=400, detail="File phải có định dạng .xlsx hoặc .xls")
+        raise HTTPException(status_code=400, detail="File must be in .xlsx or .xls format")
 
     content = await file.read()
     try:
         wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
         ws = wb.active
     except Exception:
-        raise HTTPException(status_code=400, detail="Không thể đọc file Excel. File có thể bị hỏng.")
+        raise HTTPException(status_code=400, detail="Unable to read Excel file. The file may be corrupted.")
 
     rows = list(ws.iter_rows(min_row=2, values_only=True))
     rows = [r for r in rows if any(c is not None and str(c).strip() != "" for c in r)]
 
     if not rows:
-        raise HTTPException(status_code=400, detail="File không có dữ liệu để import.")
+        raise HTTPException(status_code=400, detail="The file has no data to import.")
 
-    valid_genders = {"Nam", "Nữ", "Khác"}
+    valid_genders = {"Male", "Female", "Other"}
     valid_statuses = {"active", "inactive", "graduated"}
 
     parsed: List[dict] = []
@@ -264,19 +264,19 @@ async def import_excel(
         status_val = str(status_val).strip() if status_val else "active"
 
         if not student_code:
-            row_errors.append("thiếu mã số")
+            row_errors.append("code is required")
         elif student_code in codes_seen:
-            row_errors.append(f"mã số trùng với dòng {codes_seen[student_code]}")
+            row_errors.append(f"Student ID is duplicated with row {codes_seen[student_code]}")
         else:
             codes_seen[student_code] = idx
 
         if not full_name:
-            row_errors.append("thiếu họ tên")
+            row_errors.append("fullname is required")
 
         # Parse date of birth (accept datetime object or dd/mm/yyyy string)
         dob = None
         if dob_raw is None or dob_raw == "":
-            row_errors.append("thiếu ngày sinh")
+            row_errors.append("date is required")
         elif hasattr(dob_raw, "date") and callable(getattr(dob_raw, "date")):
             try:
                 dob = dob_raw.date()
@@ -286,31 +286,31 @@ async def import_excel(
             try:
                 dob = datetime.strptime(str(dob_raw).strip(), "%d/%m/%Y").date()
             except ValueError:
-                row_errors.append("ngày sinh sai định dạng (cần dd/mm/yyyy)")
+                row_errors.append("invalid date format (required dd/mm/yyyy)")
 
         if gender not in valid_genders:
-            row_errors.append(f"giới tính không hợp lệ ({gender or 'trống'})")
+            row_errors.append(f"invalid gender ({gender or 'empty'})")
 
         if not email or "@" not in email:
-            row_errors.append("email không hợp lệ")
+            row_errors.append("Invalid email")
         elif email in emails_seen:
-            row_errors.append(f"email trùng với dòng {emails_seen[email]}")
+            row_errors.append(f"Email is duplicated in another row {emails_seen[email]}")
         else:
             emails_seen[email] = idx
 
         try:
             gpa_val = float(gpa) if gpa not in (None, "") else 0.0
             if not (0.0 <= gpa_val <= 10.0):
-                row_errors.append("điểm TB phải từ 0 đến 10")
+                row_errors.append("GPA must be between 0 and 10")
         except (ValueError, TypeError):
-            row_errors.append("điểm TB không hợp lệ")
+            row_errors.append("Invalid GPA")
             gpa_val = 0.0
 
         if status_val not in valid_statuses:
-            row_errors.append(f"trạng thái không hợp lệ ({status_val})")
+            row_errors.append(f"Invalid status ({status_val})")
 
         if row_errors:
-            errors.append(f"Dòng {idx}: {', '.join(row_errors)}")
+            errors.append(f"Line {idx}: {', '.join(row_errors)}")
             continue
 
         parsed.append(dict(
@@ -325,15 +325,15 @@ async def import_excel(
 
     for item in parsed:
         if item["student_code"] in existing_codes:
-            errors.append(f"Mã số {item['student_code']} đã tồn tại trong hệ thống")
+            errors.append(f"Student ID {item['student_code']} already exists in the system")
         if item["email"] in existing_emails:
-            errors.append(f"Email {item['email']} đã tồn tại trong hệ thống")
+            errors.append(f"Email {item['email']} already exists in the system")
 
     if errors:
         raise HTTPException(
             status_code=422,
             detail={
-                "message": f"Import thất bại: phát hiện {len(errors)} lỗi. Không có dữ liệu nào được lưu.",
+                "message": f"Import failed: {len(errors)} errors detected. No data was saved.",
                 "errors": errors,
             },
         )

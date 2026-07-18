@@ -3,10 +3,11 @@ import { BasePage } from './BasePage';
 import { LOGIN_SELECTORS } from '@constants/selectors/pages/login.page';
 
 export class LoginPage extends BasePage {
-  private readonly usernameInput = this.page.getByPlaceholder('Nhập tên đăng nhập');
-  private readonly passwordInput = this.page.getByPlaceholder('Nhập mật khẩu');
-  private readonly loginButton = this.page.locator('.btn-login');
+  private readonly usernameInput = this.page.getByLabel(LOGIN_SELECTORS.usernameInput);
+  private readonly passwordInput = this.page.getByLabel(LOGIN_SELECTORS.passwordInput);
+  private readonly loginButton = this.page.getByRole('button', { name: 'Login' })
   pageTitle = this.page.getByText(LOGIN_SELECTORS.title);
+  usernameInfo = this.page.getByRole("heading", {name: LOGIN_SELECTORS.usernameInfo});
 
   constructor(page: Page) {
     super(page);
@@ -22,4 +23,6 @@ export class LoginPage extends BasePage {
     await this.passwordInput.fill(password);
     await this.clickAndWait(this.loginButton);
   }
+
+
 }

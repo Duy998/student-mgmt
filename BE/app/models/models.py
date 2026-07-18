@@ -5,9 +5,9 @@ from ..core.database import Base
 
 
 class GenderEnum(str, enum.Enum):
-    male = "Nam"
-    female = "Nữ"
-    other = "Khác"
+    male = "male"
+    female = "female"
+    other = "other"
 
 
 class StatusEnum(str, enum.Enum):
@@ -34,11 +34,11 @@ class Question(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(20), unique=True, index=True, nullable=False)   # e.g. L6-001
-    grade = Column(Integer, nullable=False)                               # Khối
-    topic = Column(String(100), nullable=False)                           # Chủ đề
-    level = Column(String(50), nullable=False)                            # Mức độ
-    q_type = Column(String(10), nullable=False, default="TN")             # Loại
-    content = Column(Text, nullable=False)                                # Câu hỏi
+    grade = Column(Integer, nullable=False)                               # Grade
+    topic = Column(String(100), nullable=False)                           # Topic
+    level = Column(String(50), nullable=False)                            # Level
+    q_type = Column(String(10), nullable=False, default="TN")             # Type
+    content = Column(Text, nullable=False)                                # Question
     option_a = Column(Text, nullable=False)
     option_b = Column(Text, nullable=False)
     option_c = Column(Text, nullable=False)

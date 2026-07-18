@@ -4,7 +4,7 @@ async function globalTeardown() {
 
     console.log("========== GLOBAL TEARDOWN ==========");
 
-    // Ví dụ
+
 
     console.log("Cleaning test data...");
 

@@ -59,8 +59,8 @@ class StudentCreate(BaseModel):
     @field_validator("gender")
     @classmethod
     def validate_gender(cls, v):
-        if v not in ["Nam", "Nữ", "Khác"]:
-            raise ValueError("Gender must be Nam, Nữ, or Khác")
+        if v not in ["Male", "Female", "Other"]:
+            raise ValueError("Gender must be Male, Female, or Other")
         return v
 
     @field_validator("status")

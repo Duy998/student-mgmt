@@ -1,8 +1,4 @@
-/**
- * Tập trung các API endpoint dùng để setup/teardown dữ liệu test qua request context.
- * Không rải string literal '/api/...' trong từng file spec để tránh gõ sai
- * và dễ sửa một chỗ khi backend đổi route.
- */
+
 export const API = {
   auth: {
     login: '/api/auth/login',
@@ -10,5 +6,6 @@ export const API = {
   },
   admin: {
     deleteUserByUsername: (username: string) => `/api/users/by-username/${username}`,
+    createUser: `api/auth/register`,
   },
 };

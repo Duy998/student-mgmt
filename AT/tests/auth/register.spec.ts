@@ -1,8 +1,8 @@
-import { test, expect } from '@fixtures/pages.fixture';
+import { test, expect } from '@fixtures/test.fixture';
 import { buildRegisterData } from '@test-data/register.data';
 import { ENV } from '@constants/env';
 import { MESSAGE } from '@constants/messages';
-import {UserApi} from '@API/UserApi';
+import {UserApi} from '@API/user.api';
 
 test.describe('Register', () => {
   const registerData = buildRegisterData();
@@ -13,8 +13,7 @@ test.describe('Register', () => {
     expect(response.ok()).toBeTruthy();
   });
 
-  test('AUTH-01: Đăng ký tài khoản mới thành công', async ({ loginPage,registerPage }) => {
-
+  test('AUTH-01: New account registration successful', async ({ loginPage,registerPage }) => {
     await loginPage.open(ENV.ui.baseUrl);
     await registerPage.openFromLogin();
     await registerPage.register(registerData);

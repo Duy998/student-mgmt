@@ -15,27 +15,27 @@ export interface StudentData {
 }
 
 export class StudentPage extends BasePage {
-  private readonly pageTitle = this.page.getByText('Quản Lý Học Sinh');
-  private readonly addStudentButton = this.page.getByRole('button', { name: 'Thêm Học Sinh' });
-  private readonly saveButton = this.page.getByRole('button', { name: 'Lưu' });
+private readonly pageTitle = this.page.getByText('Student Management');
+private readonly addStudentButton = this.page.getByRole('button', { name: 'Add Student' });
+private readonly saveButton = this.page.getByRole('button', { name: 'Save' });
 
-  private readonly importButton = this.page.getByRole('button', { name: 'Nhập Excel' });
-  private readonly importFileInput = this.page.locator('input[type="file"]');
-  private readonly confirmImportButton = this.page.getByRole('button', { name: 'Xác nhận nhập' });
+private readonly importButton = this.page.getByRole('button', { name: 'Import Excel' });
+private readonly importFileInput = this.page.locator('input[type="file"]');
+private readonly confirmImportButton = this.page.getByRole('button', { name: 'Confirm Import' });
 
-  private readonly exportExcelButton = this.page.getByRole('button', { name: 'Xuất Excel' });
-  private readonly exportPdfButton = this.page.getByRole('button', { name: 'Xuất PDF' });
-
-  private readonly studentCodeInput = this.page.locator('#studentCode');
-  private readonly fullNameInput = this.page.locator('#fullName');
-  private readonly dateOfBirthInput = this.page.locator('#dateOfBirth');
-  private readonly genderSelect = this.page.locator('#gender');
-  private readonly emailInput = this.page.locator('#email');
-  private readonly phoneInput = this.page.locator('#phone');
-  private readonly addressInput = this.page.locator('#address');
-  private readonly classNameInput = this.page.locator('#className');
-  private readonly gpaInput = this.page.locator('#gpa');
-  private readonly statusSelect = this.page.locator('#status');
+private readonly exportExcelButton = this.page.getByRole('button', { name: 'Export Excel' });
+private readonly exportPdfButton = this.page.getByRole('button', { name: 'Export PDF' });
+// ===== Student Form =====
+  private readonly studentCodeInput = this.page.locator('#f-student_code');
+  private readonly fullNameInput = this.page.locator('#f-full_name');
+  private readonly dateOfBirthInput = this.page.locator('#f-date_of_birth');
+  private readonly genderSelect = this.page.locator('#f-gender');
+  private readonly emailInput = this.page.locator('#f-email');
+  private readonly phoneInput = this.page.locator('#f-phone');
+  private readonly addressInput = this.page.locator('#-faddress');
+  private readonly classNameInput = this.page.locator('#f-class_nam');
+  private readonly gpaInput = this.page.locator('#f-gpa');
+  private readonly statusSelect = this.page.locator('#f-status');
 
   constructor(page: Page) {
     super(page);
@@ -73,14 +73,14 @@ export class StudentPage extends BasePage {
     await this.save();
   }
 
-  /** Kiểm tra học sinh vừa tạo có xuất hiện trong danh sách/bảng */
+ 
   async expectStudentInList(studentId: string, fullName: string) {
     const row = this.page.locator('tr', { hasText: studentId });
     await expect(row).toBeVisible();
     await expect(row).toContainText(fullName);
   }
 
-  /** Import danh sách học sinh từ file Excel (.xlsx) */
+
   async importFromExcel(filePath: string) {
     await this.clickAndWait(this.importButton);
     await this.importFileInput.setInputFiles(filePath);

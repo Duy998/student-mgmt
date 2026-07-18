@@ -6,10 +6,10 @@
     Liệt kê các gói phần mềm cần thiết để chạy dự án
 + Scripts
     Định nghĩa các phím tắt (lệnh) để thực thi các chức năng của Playwright thông qua dòng lệnh:
-        Chạy toàn bộ các test: "test": "npx playwright test"
-        Chạy test có giao diện trực quan: "test:ui": "npx playwright test --ui"
-        Xem báo cáo kết quả kiểm thử: "show:report": "npx playwright show-report"
-        Chạy 1 file : "test:register": "playwright test tests/auth/register.spec.ts",
+        Chạy toàn bộ các test: "npm run test": "npx playwright test"
+        Chạy test có giao diện trực quan: "npm run  test:ui": "npx playwright test --ui"
+        Xem báo cáo kết quả kiểm thử: "npm run report": "npx playwright show-report"
+        Chạy 1 file : "npm run test:register": "playwright test tests/auth/register.spec.ts",
 ============================================
 ============================================
 2. File package-lock.json
@@ -177,6 +177,10 @@ Sau này
 
 
 src/
+├── auth/
+│   └── admin.setup.ts              <-- Login 1 lần, lưu storageState
+├── playwright/.auth/
+│   └── admin.json                  <-- File session sau khi login
 ├── pages/          # Page Object Model
 ├── components/     # Component dùng chung (Header, Sidebar, Modal...)
 ├── fixtures/       # Custom Playwright fixtures
@@ -187,6 +191,47 @@ src/
 ├── api/            # API clients (StudentApi, AuthApi...)
 ├── factories/      # Sinh dữ liệu test (StudentFactory...)
 └── assertions/     # Custom assertions
+====================Playwright sẽ chạy theo thứ tự========================
+====================Playwright sẽ chạy theo thứ tự========================
+Start Test
+↓
+Tạo Browser
+↓
+Tạo Context
+↓
+Tạo Page
+↓
+Tìm xem loginPage ở đâu
+↓
+A, loginPage nằm trong Fixture
+↓
+Chạy Fixture
+↓
+new LoginPage(page)
+↓
+await use(loginPage)
+↓
+Đưa loginPage vào testcase
+↓
+Test chạy
+↓
+Đóng Browser
+============================================
+============================================
+
+
+============================================
+============================================
+
+
+============================================
+============================================
+
+
+============================================
+============================================
+
+
 ============================================
 ============================================
 

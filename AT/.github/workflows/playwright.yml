@@ -22,12 +22,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # TODO: nếu app cần build/start riêng (không dùng webServer trong config),
-      # thêm bước start app + health-check tại đây trước khi chạy test, ví dụ:
-      # - name: Start application
-      #   run: npm run start &
-      # - name: Wait for app to be ready
-      #   run: npx wait-on http://localhost:3000
+
 
       - name: Run Playwright tests
         env:

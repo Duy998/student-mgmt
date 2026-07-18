@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",  // Quan trọng: phải có baseUrl
+    "baseUrl": ".",  
     "paths": {
       "@config/*": ["config/*"],
       "@fixtures/*": ["fixtures/*"],

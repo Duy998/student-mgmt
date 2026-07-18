@@ -4,11 +4,13 @@ let currentSearch = '';
 let currentStatusFilter = '';
 let editingStudentId = null;
 
-// THAY ĐỔI: Bỏ object statusLabels hardcode tiếng Việt.
-// Trước: statusLabels = { active: { text: 'Đang học', cls: '...' } }
-// Sau  : dùng translateValue('status', value) từ i18n.js
-// Lý do: khi đổi ngôn ngữ, object cũ vẫn giữ text cũ → không dịch được.
-//        translateValue() đọc DICT theo currentLang tại thời điểm gọi → luôn đúng.
+// CHANGE: Remove the hardcoded Vietnamese statusLabels object.
+// Before: statusLabels = { active: { text: 'Active', cls: '...' } }
+// After: Use translateValue('status', value) from i18n.js.
+// Reason: When the language changes, the old object still keeps the previous text,
+// so it cannot be translated.
+// translateValue() reads from DICT using the current language at runtime,
+// ensuring the displayed text is always correct.
 const statusCls = {
   active    : 'badge-active',
   inactive  : 'badge-inactive',
@@ -29,7 +31,7 @@ function formatDate(iso) {
 
 async function loadStudents() {
   const tbody = document.getElementById('students-tbody');
-  tbody.innerHTML = `<tr><td colspan="8" class="text-muted" style="text-align:center; padding:30px;">Đang tải...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="8" class="text-muted" style="text-align:center; padding:30px;">Loading...</td></tr>`;
 
   try {
     const params = { skip: currentPage * PAGE_SIZE, limit: PAGE_SIZE };
@@ -42,7 +44,7 @@ async function loadStudents() {
       tbody.innerHTML = `<tr><td colspan="8">
         <div class="empty-state">
           <div class="empty-icon">📭</div>
-          <div>Không tìm thấy học sinh nào</div>
+          <div>No students found</div>
         </div>
       </td></tr>`;
     } else {
@@ -56,14 +58,11 @@ async function loadStudents() {
     document.getElementById('next-page-btn').disabled = students.length < PAGE_SIZE;
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-muted" style="text-align:center; padding:30px;">Lỗi: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="text-muted" style="text-align:center; padding:30px;">Error: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 
 function renderStudentRow(s) {
-  // THAY ĐỔI: dùng translateValue() thay vì đọc từ statusLabels cũ
-  // translateValue('status', 'active') → 'Đang học' (VI) hoặc 'Active' (EN)
-  // translateValue('gender', 'Nam')   → 'Nam' (VI) hoặc 'Male' (EN)
   const statusText = translateValue('status', s.status);
   const statusClass = statusCls[s.status] || '';
   const genderText = translateValue('gender', s.gender);
@@ -111,7 +110,7 @@ async function loadStatistics() {
     document.getElementById('stat-inactive').textContent = stats.inactive;
     document.getElementById('stat-gpa').textContent = stats.average_gpa.toFixed(2);
   } catch (err) {
-    showToast('Không thể tải thống kê: ' + err.message, 'error');
+    showToast('Failed to load statistics: ' + err.message, 'error');
   }
 }
 
@@ -160,9 +159,9 @@ async function openStudentModal(studentId) {
     }
   }
 
-  // THAY ĐỔI: dùng t() cho label và title trong modal
-  // Lý do: modal được tạo động bằng innerHTML nên data-i18n không có tác dụng.
-  // Phải gọi t() trực tiếp khi build chuỗi HTML.
+  // CHANGE: Use t() for labels and modal titles.
+  // Reason: The modal is dynamically generated with innerHTML so data-i18n does not work.
+  // Use t() directly when building the HTML string.
   const modalRoot = document.getElementById('modal-root');
   modalRoot.innerHTML = `
     <div class="modal-overlay" id="student-modal-overlay">
@@ -191,9 +190,9 @@ async function openStudentModal(studentId) {
               <div class="field">
                 <label>${t('th.gender')}</label>
                 <select id="f-gender">
-                  <option value="Nam"  ${student.gender === 'Nam'  ? 'selected' : ''}>${t('gender.Nam')}</option>
-                  <option value="Nữ"   ${student.gender === 'Nữ'   ? 'selected' : ''}>${t('gender.Nữ')}</option>
-                  <option value="Khác" ${student.gender === 'Khác' ? 'selected' : ''}>${t('gender.Khác')}</option>
+                  <option value="Male"   ${student.gender === 'Male'   ? 'selected' : ''}>${t('gender.Male')}</option>
+                  <option value="Female" ${student.gender === 'Female' ? 'selected' : ''}>${t('gender.Female')}</option>
+                  <option value="Other"  ${student.gender === 'Other'  ? 'selected' : ''}>${t('gender.Other')}</option>
                 </select>
               </div>
             </div>
@@ -203,7 +202,7 @@ async function openStudentModal(studentId) {
                 <input type="email" id="f-email" value="${escapeHtml(student.email)}" required>
               </div>
               <div class="field">
-                <label>Điện thoại</label>
+                <label>Phone</label>
                 <input type="text" id="f-phone" value="${escapeHtml(student.phone || '')}">
               </div>
             </div>
@@ -218,7 +217,7 @@ async function openStudentModal(studentId) {
               </div>
             </div>
             <div class="field">
-              <label>Địa chỉ</label>
+              <label>Address</label>
               <input type="text" id="f-address" value="${escapeHtml(student.address || '')}">
             </div>
             <div class="field">
@@ -273,10 +272,10 @@ async function submitStudentForm(e) {
   try {
     if (editingStudentId) {
       await api.updateStudent(editingStudentId, payload);
-      showToast(t('toast.saveOk'), 'success');   // THAY ĐỔI: dùng t() thay vì hardcode
+      showToast(t('toast.saveOk'), 'success');   
     } else {
       await api.createStudent(payload);
-      showToast(t('toast.saveOk'), 'success');   // THAY ĐỔI: dùng t() thay vì hardcode
+      showToast(t('toast.saveOk'), 'success');   
     }
     closeStudentModal();
     loadStudents();
@@ -300,7 +299,7 @@ function confirmDeleteStudent(id) {
           <button class="modal-close" id="close-delete-modal">&times;</button>
         </div>
         <div class="modal-body">
-          Bạn có chắc muốn xóa học sinh này? Hành động này không thể hoàn tác.
+          Are you sure you want to delete this student? This action cannot be undone.
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" id="cancel-delete-btn">${t('btn.cancel')}</button>
@@ -315,7 +314,7 @@ function confirmDeleteStudent(id) {
   document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
     try {
       await api.deleteStudent(id);
-      showToast(t('toast.deleteOk'), 'success');   // THAY ĐỔI: dùng t()
+      showToast(t('toast.deleteOk'), 'success');   
       close();
       loadStudents();
       loadStatistics();
